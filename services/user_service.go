@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	"github.com/gowesmart/api-gowesmart/helper"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
@@ -15,28 +14,16 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserService interface {
-	Register(*gin.Context, *entity.User) (*response.RegisterResponse, error)
-	ForgotPassword(*gin.Context, string, string) (*response.ForgotPasswordResponse, error)
-	ResetPassword(*gin.Context, string, string) error
-	Login(*gin.Context, string, string) (*response.LoginResponse, error)
-	UpdatePassword(*gin.Context, uint, string) error
-	GetUserProfile(*gin.Context, uint) (*response.UserProfileResponse, error)
-	UpdateUserProfile(*gin.Context, *entity.User, uint) (*response.UpdateUserProfileResponse, error)
-	DeleteUserProfile(*gin.Context, uint) error
-	GetCurrentUser(*gin.Context, uint) (*response.GetUserCurrentResponse, error)
+type UserService struct{}
+
+func NewUserService() *UserService {
+	return &UserService{}
 }
 
-type userServiceImpl struct{}
+func (service *UserService) Register(c *gin.Context, user *entity.User) (*response.RegisterResponse, error) {
+	db, logger := utils.GetDBAndLogger(c)
 
-func NewUserService() UserService {
-	return &userServiceImpl{}
-}
-
-func (service *userServiceImpl) Register(c *gin.Context, user *entity.User) (*response.RegisterResponse, error) {
-	db, logger := helper.GetDBAndLogger(c)
-
-	hashedPassword, err := helper.HashPassword(user.Password)
+	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +35,9 @@ func (service *userServiceImpl) Register(c *gin.Context, user *entity.User) (*re
 			return exceptions.NewCustomError(http.StatusConflict, "Username or email already exists")
 		}
 
-		// if err = db.Create(&entity.Profile{UserID: user.ID}).Error; err != nil {
-		// 	return exceptions.NewCustomError(http.StatusConflict, "Username or email already exists")
-		// }
+		if err = db.Create(&entity.Profile{UserID: user.ID}).Error; err != nil {
+			return exceptions.NewCustomError(http.StatusConflict, "Username or email already exists")
+		}
 
 		return nil
 	})
@@ -70,8 +57,8 @@ func (service *userServiceImpl) Register(c *gin.Context, user *entity.User) (*re
 	return &registerResponse, nil
 }
 
-func (service *userServiceImpl) Login(c *gin.Context, username, password string) (*response.LoginResponse, error) {
-	db, _ := helper.GetDBAndLogger(c)
+func (service *UserService) Login(c *gin.Context, username, password string) (*response.LoginResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
 
 	var err error
 
@@ -81,7 +68,7 @@ func (service *userServiceImpl) Login(c *gin.Context, username, password string)
 		return nil, exceptions.NewCustomError(http.StatusUnauthorized, "Email or password is incorrect")
 	}
 
-	err = helper.VerifyPassword(password, user.Password)
+	err = utils.VerifyPassword(password, user.Password)
 	if err != nil {
 		return nil, exceptions.NewCustomError(http.StatusUnauthorized, "Email or password is incorrect")
 	}
@@ -101,10 +88,10 @@ func (service *userServiceImpl) Login(c *gin.Context, username, password string)
 	return &loginResponse, nil
 }
 
-func (service *userServiceImpl) UpdatePassword(c *gin.Context, userID uint, newPassword string) error {
-	db, logger := helper.GetDBAndLogger(c)
+func (service *UserService) UpdatePassword(c *gin.Context, userID uint, newPassword string) error {
+	db, logger := utils.GetDBAndLogger(c)
 
-	hashedPassword, err := helper.HashPassword(newPassword)
+	hashedPassword, err := utils.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
@@ -118,8 +105,8 @@ func (service *userServiceImpl) UpdatePassword(c *gin.Context, userID uint, newP
 	return nil
 }
 
-func (service *userServiceImpl) GetUserProfile(c *gin.Context, userID uint) (*response.UserProfileResponse, error) {
-	db, _ := helper.GetDBAndLogger(c)
+func (service *UserService) GetUserProfile(c *gin.Context, userID uint) (*response.UserProfileResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
 
 	var responseUser response.UserProfileResponse
 
@@ -138,8 +125,8 @@ func (service *userServiceImpl) GetUserProfile(c *gin.Context, userID uint) (*re
 	return &responseUser, nil
 }
 
-func (service *userServiceImpl) UpdateUserProfile(c *gin.Context, updatedUser *entity.User, userID uint) (*response.UpdateUserProfileResponse, error) {
-	db, logger := helper.GetDBAndLogger(c)
+func (service *UserService) UpdateUserProfile(c *gin.Context, updatedUser *entity.User, userID uint) (*response.UpdateUserProfileResponse, error) {
+	db, logger := utils.GetDBAndLogger(c)
 
 	var responseUser response.UpdateUserProfileResponse
 
@@ -150,11 +137,11 @@ func (service *userServiceImpl) UpdateUserProfile(c *gin.Context, updatedUser *e
 			return err
 		}
 
-		// if err := tx.Model(&entity.Profile{}).
-		// 	Where("user_id = ?", userID).
-		// 	Updates(updatedUser.Profile).Error; err != nil {
-		// 	return err
-		// }
+		if err := tx.Model(&entity.Profile{}).
+			Where("user_id = ?", userID).
+			Updates(updatedUser.Profile).Error; err != nil {
+			return err
+		}
 
 		if err := tx.Model(&entity.User{}).
 			Select("profiles.*, users.id, users.username, users.role, users.email").
@@ -174,8 +161,8 @@ func (service *userServiceImpl) UpdateUserProfile(c *gin.Context, updatedUser *e
 	return &responseUser, nil
 }
 
-func (service *userServiceImpl) DeleteUserProfile(c *gin.Context, userID uint) error {
-	db, logger := helper.GetDBAndLogger(c)
+func (service *UserService) DeleteUserProfile(c *gin.Context, userID uint) error {
+	db, logger := utils.GetDBAndLogger(c)
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		// if err := tx.Where("user_id = ?", userID).Delete(&entity.Profile{}).Error; err != nil {
@@ -196,8 +183,8 @@ func (service *userServiceImpl) DeleteUserProfile(c *gin.Context, userID uint) e
 	return nil
 }
 
-func (service *userServiceImpl) ForgotPassword(c *gin.Context, username string, email string) (*response.ForgotPasswordResponse, error) {
-	db, _ := helper.GetDBAndLogger(c)
+func (service *UserService) ForgotPassword(c *gin.Context, username string, email string) (*response.ForgotPasswordResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
 
 	var user entity.User
 	if err := db.Where("username = ?", username).Where("email = ?", email).First(&user).Error; err != nil {
@@ -217,8 +204,8 @@ func (service *userServiceImpl) ForgotPassword(c *gin.Context, username string, 
 	}, nil
 }
 
-func (service *userServiceImpl) ResetPassword(c *gin.Context, token string, newPassword string) error {
-	db, _ := helper.GetDBAndLogger(c)
+func (service *UserService) ResetPassword(c *gin.Context, token string, newPassword string) error {
+	db, _ := utils.GetDBAndLogger(c)
 
 	claims, err := utils.ParseResetToken(token)
 	if err != nil {
@@ -233,7 +220,7 @@ func (service *userServiceImpl) ResetPassword(c *gin.Context, token string, newP
 		return err
 	}
 
-	hashedPassword, err := helper.HashPassword(newPassword)
+	hashedPassword, err := utils.HashPassword(newPassword)
 	if err != nil {
 		return err
 	}
@@ -246,8 +233,8 @@ func (service *userServiceImpl) ResetPassword(c *gin.Context, token string, newP
 	return nil
 }
 
-func (service *userServiceImpl) GetCurrentUser(c *gin.Context, userID uint) (*response.GetUserCurrentResponse, error) {
-	db, _ := helper.GetDBAndLogger(c)
+func (service *UserService) GetCurrentUser(c *gin.Context, userID uint) (*response.GetUserCurrentResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
 
 	var user entity.User
 	if err := db.Where("id = ?", userID).First(&user).Error; err != nil {

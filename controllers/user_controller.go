@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	"github.com/gowesmart/api-gowesmart/helper"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	_ "github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
@@ -15,25 +14,13 @@ import (
 	"github.com/gowesmart/api-gowesmart/utils"
 )
 
-type UserController interface {
-	Register(*gin.Context)
-	ForgotPassword(*gin.Context)
-	ResetPassword(*gin.Context)
-	Login(*gin.Context)
-	UpdatePassword(*gin.Context)
-	GetUserProfile(*gin.Context)
-	UpdateUserProfile(*gin.Context)
-	DeleteUserProfile(*gin.Context)
-	GetCurrentUser(*gin.Context)
+type UserController struct {
+	UserService services.UserService
 }
 
-type userControllerImpl struct {
-	services.UserService
-}
-
-func NewUserController(userService services.UserService) UserController {
-	return &userControllerImpl{
-		userService,
+func NewUserController(userService *services.UserService) *UserController {
+	return &UserController{
+		*userService,
 	}
 }
 
@@ -47,11 +34,11 @@ func NewUserController(userService services.UserService) UserController {
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/auth/register [post]
-func (controller *userControllerImpl) Register(c *gin.Context) {
+func (controller *UserController) Register(c *gin.Context) {
 	var registerReq request.RegisterRequest
 
 	err := c.ShouldBindJSON(&registerReq)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	newUser := entity.User{
 		Username: registerReq.Username,
@@ -60,9 +47,9 @@ func (controller *userControllerImpl) Register(c *gin.Context) {
 	}
 
 	registerRes, err := controller.UserService.Register(c, &newUser)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusCreated, registerRes, nil)
+	utils.ToResponseJSON(c, http.StatusCreated, registerRes, nil)
 }
 
 // LoginUser godoc
@@ -76,16 +63,16 @@ func (controller *userControllerImpl) Register(c *gin.Context) {
 // @Failure 401 {object} web.WebUnauthorizedError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/auth/login [post]
-func (controller *userControllerImpl) Login(c *gin.Context) {
+func (controller *UserController) Login(c *gin.Context) {
 	var loginReq request.LoginRequest
 
 	err := c.ShouldBindJSON(&loginReq)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	loginRes, err := controller.UserService.Login(c, loginReq.Email, loginReq.Password)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, loginRes, nil)
+	utils.ToResponseJSON(c, http.StatusOK, loginRes, nil)
 }
 
 // UpdatePassword godoc
@@ -100,19 +87,19 @@ func (controller *userControllerImpl) Login(c *gin.Context) {
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/users/password [patch]
-func (controller *userControllerImpl) UpdatePassword(c *gin.Context) {
+func (controller *UserController) UpdatePassword(c *gin.Context) {
 	var updatePasswordReq request.UpdatePasswordRequest
 
 	err := c.ShouldBindJSON(&updatePasswordReq)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	userID, _, err := utils.ExtractTokenClaims(c)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	err = controller.UserService.UpdatePassword(c, userID, updatePasswordReq.Password)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, "password updated", nil)
+	utils.ToResponseJSON(c, http.StatusOK, "password updated", nil)
 }
 
 // GetUserProfile godoc
@@ -126,16 +113,16 @@ func (controller *userControllerImpl) UpdatePassword(c *gin.Context) {
 // @Failure 404 {object} web.WebNotFoundError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/users/profile/{id} [get]
-func (controller *userControllerImpl) GetUserProfile(c *gin.Context) {
+func (controller *UserController) GetUserProfile(c *gin.Context) {
 	userID, err := strconv.ParseUint(c.Param("id"), 10, 32)
 	if err != nil {
 		panic(exceptions.NewCustomError(http.StatusBadRequest, "Id must be an integer"))
 	}
 
 	user, err := controller.UserService.GetUserProfile(c, uint(userID))
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, user, nil)
+	utils.ToResponseJSON(c, http.StatusOK, user, nil)
 }
 
 // UpdateUserProfile godoc
@@ -150,14 +137,14 @@ func (controller *userControllerImpl) GetUserProfile(c *gin.Context) {
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/users/profile [patch]
-func (controller *userControllerImpl) UpdateUserProfile(c *gin.Context) {
+func (controller *UserController) UpdateUserProfile(c *gin.Context) {
 	var updateUserReq request.UpdateUserProfileRequest
 
 	err := c.ShouldBindJSON(&updateUserReq)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	userID, _, err := utils.ExtractTokenClaims(c)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	updatedProfile := &entity.User{
 		Username: updateUserReq.Username,
@@ -167,9 +154,9 @@ func (controller *userControllerImpl) UpdateUserProfile(c *gin.Context) {
 	}
 
 	userResponse, err := controller.UserService.UpdateUserProfile(c, updatedProfile, userID)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, userResponse, nil)
+	utils.ToResponseJSON(c, http.StatusOK, userResponse, nil)
 }
 
 // DeleteUserProfile godoc
@@ -183,14 +170,14 @@ func (controller *userControllerImpl) UpdateUserProfile(c *gin.Context) {
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/users [delete]
-func (controller *userControllerImpl) DeleteUserProfile(c *gin.Context) {
+func (controller *UserController) DeleteUserProfile(c *gin.Context) {
 	userID, _, err := utils.ExtractTokenClaims(c)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	err = controller.UserService.DeleteUserProfile(c, userID)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, "user deleted", nil)
+	utils.ToResponseJSON(c, http.StatusOK, "user deleted", nil)
 }
 
 // ForgotPassword godoc
@@ -203,15 +190,15 @@ func (controller *userControllerImpl) DeleteUserProfile(c *gin.Context) {
 // @Failure 404 {object} web.WebNotFoundError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/auth/forgot-password [post]
-func (controller *userControllerImpl) ForgotPassword(c *gin.Context) {
+func (controller *UserController) ForgotPassword(c *gin.Context) {
 	var req request.ForgotPasswordRequest
 	err := c.ShouldBindJSON(&req)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	userResponse, err := controller.UserService.ForgotPassword(c, req.Username, req.Email)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, userResponse, nil)
+	utils.ToResponseJSON(c, http.StatusOK, userResponse, nil)
 }
 
 // ResetPassword godoc
@@ -225,15 +212,15 @@ func (controller *userControllerImpl) ForgotPassword(c *gin.Context) {
 // @Failure 404 {object} web.WebNotFoundError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/auth/reset-password [post]
-func (controller *userControllerImpl) ResetPassword(c *gin.Context) {
+func (controller *UserController) ResetPassword(c *gin.Context) {
 	var req request.ResetPasswordRequest
 	err := c.ShouldBindJSON(&req)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	err = controller.UserService.ResetPassword(c, req.Token, req.NewPassword)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, "password updated", nil)
+	utils.ToResponseJSON(c, http.StatusOK, "password updated", nil)
 }
 
 // GetCurrentUser godoc
@@ -248,12 +235,12 @@ func (controller *userControllerImpl) ResetPassword(c *gin.Context) {
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/users/current [get]
-func (controller *userControllerImpl) GetCurrentUser(c *gin.Context) {
+func (controller *UserController) GetCurrentUser(c *gin.Context) {
 	userID, _, err := utils.ExtractTokenClaims(c)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	userResponse, err := controller.UserService.GetCurrentUser(c, uint(userID))
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
-	helper.ToResponseJSON(c, http.StatusOK, userResponse, nil)
+	utils.ToResponseJSON(c, http.StatusOK, userResponse, nil)
 }
