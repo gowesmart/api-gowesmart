@@ -10,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	"github.com/gowesmart/api-gowesmart/helper"
+	"github.com/gowesmart/api-gowesmart/model/entity"
 )
 
-var API_SECRET = helper.GetEnv("API_SECRET", "W8j8sLNYNXyhVyjAcyiuaWMCHGFGfcwEG8WsxlOMsPgX0vF73LmSslCaofZls8oNMSmj8bNFnZpxqD3JUUmPhYtRI5gIsSi9riGHTXpgja6RETJiXFI4WTsIfszZcwoW")
+var API_SECRET = GetEnv("API_SECRET", "W8j8sLNYNXyhVyjAcyajsjdiuaWMCHGFGfcwEG8WsxlOMsPgX0vF73LmSslCaofZls8oNMSmj8bNFnZpxqD3JUUmPhYtRI5gIsSi9riGHTXpgja6RETJiXFI4WTsIfszZcwoW")
 
 func GenerateToken(userId uint, userRole string) (string, error) {
-	tokenLifeSpan, err := strconv.Atoi(helper.GetEnv("TOKEN_HOUR_LIFESPAN", "1"))
+	tokenLifeSpan, err := strconv.Atoi(GetEnv("TOKEN_HOUR_LIFESPAN", "1"))
 	if err != nil {
 		return "", err
 	}
@@ -79,12 +79,12 @@ func ExtractTokenClaims(c *gin.Context) (id uint, role string, err error) {
 	return uint(userId), claims["user_role"].(string), nil
 }
 
-// func UserRoleMustAdmin(c *gin.Context) {
-// 	_, role, err := ExtractTokenClaims(c)
-// 	if err != nil {
-// 		helper.PanicIfError(err)
-// 	}
-// 	if role != entity.RoleAdmin {
-// 		helper.PanicIfError(exceptions.NewCustomError(http.StatusForbidden, "Only admin can manipulate data"))
-// 	}
-// }
+func UserRoleMustAdmin(c *gin.Context) {
+	_, role, err := ExtractTokenClaims(c)
+	if err != nil {
+		PanicIfError(err)
+	}
+	if role != entity.RoleAdmin {
+		PanicIfError(exceptions.NewCustomError(http.StatusForbidden, "Only admin can manipulate data"))
+	}
+}

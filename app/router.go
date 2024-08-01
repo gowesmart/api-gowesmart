@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
@@ -12,32 +13,33 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/gowesmart/api-gowesmart/controllers"
+	"github.com/joho/godotenv"
 
-	// "github.com/gowesmart/api-gowesmart/docs"
+	"github.com/gowesmart/api-gowesmart/docs"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	"github.com/gowesmart/api-gowesmart/helper"
 	"github.com/gowesmart/api-gowesmart/middlewares"
 	"github.com/gowesmart/api-gowesmart/services"
+	"github.com/gowesmart/api-gowesmart/utils"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	// swaggerFiles "github.com/swaggo/files"
-	// ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter() *gin.Engine {
 
-	// swaggerSchemes := []string{"https"}
-	// if os.Getenv("ENVIRONMENT") != "production" {
-	// 	err := godotenv.Load()
-	// 	helper.PanicIfError(err)
-	// 	swaggerSchemes = []string{"http"}
-	// }
+	swaggerSchemes := []string{"https"}
+	if os.Getenv("ENVIRONMENT") != "production" {
+		err := godotenv.Load()
+		utils.PanicIfError(err)
+		swaggerSchemes = []string{"http"}
+	}
 
-	// docs.SwaggerInfo.Title = "Car Review REST API"
-	// docs.SwaggerInfo.Description = "This is a Car Review REST API Docs."
-	// docs.SwaggerInfo.Version = "1.0"
-	// docs.SwaggerInfo.Host = helper.MustGetEnv("SERVER_HOST")
-	// docs.SwaggerInfo.Schemes = swaggerSchemes
+	docs.SwaggerInfo.Title = "Car Review REST API"
+	docs.SwaggerInfo.Description = "This is a Car Review REST API Docs."
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = utils.MustGetEnv("SERVER_HOST")
+	docs.SwaggerInfo.Schemes = swaggerSchemes
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("no_space", func(fl validator.FieldLevel) bool {
@@ -68,7 +70,7 @@ func NewRouter() *gin.Engine {
 	}
 
 	logger, err := cfg.Build()
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 	defer logger.Sync()
 
 	db := NewConnection()
@@ -99,7 +101,7 @@ func NewRouter() *gin.Engine {
 	r.Use(exceptions.GlobalErrorHandler)
 
 	r.NoRoute(func(c *gin.Context) {
-		panic(exceptions.NewCustomError(http.StatusNotFound, fmt.Sprintf("path not found, use https://%s for API docs", helper.MustGetEnv("SERVER_HOST")+"/docs/index.html")))
+		panic(exceptions.NewCustomError(http.StatusNotFound, fmt.Sprintf("path not found, use https://%s for API docs", utils.MustGetEnv("SERVER_HOST")+"/docs/index.html")))
 	})
 
 	apiRouter := r.Group("/api")
@@ -124,7 +126,7 @@ func NewRouter() *gin.Engine {
 	userRouter.PATCH("/profile", userController.UpdateUserProfile)
 	userRouter.DELETE("", userController.DeleteUserProfile)
 
-	// r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
 	return r
 }

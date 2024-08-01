@@ -10,5 +10,5 @@ type User struct {
 	Role      string `sql:"type:enum('ADMIN', 'USER')" gorm:"default:'USER'"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	// Profile   Profile `gorm:"foreignKey:UserID"`
+	Profile   Profile `gorm:"foreignKey:UserID"`
 }
