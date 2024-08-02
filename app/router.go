@@ -17,7 +17,6 @@ import (
 
 	"github.com/gowesmart/api-gowesmart/docs"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	"github.com/gowesmart/api-gowesmart/middlewares"
 	"github.com/gowesmart/api-gowesmart/services"
 	"github.com/gowesmart/api-gowesmart/utils"
 	swaggerFiles "github.com/swaggo/files"
@@ -58,7 +57,7 @@ func NewRouter() *gin.Engine {
 	}
 
 	cfg := zap.Config{
-		OutputPaths: []string{"stdout"},
+		OutputPaths: []string{"stdout", "./log/log.log"},
 		EncoderConfig: zapcore.EncoderConfig{
 			MessageKey: "message",
 			LevelKey:   "level",
@@ -108,23 +107,25 @@ func NewRouter() *gin.Engine {
 
 	// ======================== AUTH ROUTE =======================
 
-	apiRouter.POST("/auth/register", userController.Register)
-	apiRouter.POST("/auth/login", userController.Login)
-	apiRouter.POST("/auth/forgot-password", userController.ForgotPassword)
-	apiRouter.POST("/auth/reset-password", userController.ResetPassword)
+	authRouter := apiRouter.Group("/auth")
 
-	// ======================== USERS ROUTE =======================
+	authRouter.POST("/register", userController.Register)
+	authRouter.POST("/login", userController.Login)
+	// apiRouter.POST("/auth/forgot-password", userController.ForgotPassword)
+	// apiRouter.POST("/auth/reset-password", userController.ResetPassword)
 
-	userRouter := apiRouter.Group("/users")
+	// // ======================== USERS ROUTE =======================
 
-	apiRouter.GET("/users/profile/:id", userController.GetUserProfile)
-	apiRouter.GET("/users/current", userController.GetCurrentUser)
+	// userRouter := apiRouter.Group("/users")
 
-	userRouter.Use(middlewares.JwtAuthMiddleware)
+	// apiRouter.GET("/users/profile/:id", userController.GetUserProfile)
+	// apiRouter.GET("/users/current", userController.GetCurrentUser)
 
-	userRouter.PATCH("/password", userController.UpdatePassword)
-	userRouter.PATCH("/profile", userController.UpdateUserProfile)
-	userRouter.DELETE("", userController.DeleteUserProfile)
+	// userRouter.Use(middlewares.JwtAuthMiddleware)
+
+	// userRouter.PATCH("/password", userController.UpdatePassword)
+	// userRouter.PATCH("/profile", userController.UpdateUserProfile)
+	// userRouter.DELETE("", userController.DeleteUserProfile)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
