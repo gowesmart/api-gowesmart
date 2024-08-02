@@ -3,6 +3,7 @@ package entity
 import "time"
 
 var IDRoleAdmin = 1
+var IDRoleUser = 2
 
 type Role struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement"`

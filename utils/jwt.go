@@ -31,7 +31,7 @@ func init() {
 	}
 }
 func GenerateToken(userId uint, roleId uint) (string, error) {
-	tokenLifeSpan, err := strconv.Atoi(GetEnv("TOKEN_HOUR_LIFESPAN", "1"))
+	tokenLifeSpan, err := strconv.Atoi(MustGetEnv("TOKEN_HOUR_LIFESPAN"))
 	if err != nil {
 		return "", err
 	}
@@ -45,6 +45,17 @@ func GenerateToken(userId uint, roleId uint) (string, error) {
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+	return token.SignedString([]byte(API_SECRET))
+}
+
+func GenerateResetPasswordToken(userId uint) (string, error) {
+	claims := &Claims{
+		UserID: userId,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(API_SECRET))
 }
 
