@@ -26,3 +26,7 @@
 {"time_stamp":"2024-08-02T09:49:04.831+0700","message":"success login","userID":{"ID":5,"RoleID":2,"Username":"string","Email":"string@string.string","Password":"$2a$10$gAf.Oys1pFZzjrUNwnTtDOSEhQNJ1C/JmqD15f9G3Nffjt/OGavfC","CreatedAt":"2024-08-02T09:07:50.431652+07:00","UpdatedAt":"2024-08-02T09:07:50.431652+07:00","Role":{"ID":0,"Name":"","CreatedAt":"0001-01-01T00:00:00Z","UpdatedAt":"0001-01-01T00:00:00Z"}}}
 {"time_stamp":"2024-08-02T09:49:04.832+0700","message":"global error handler","error":"ERROR: could not determine data type of parameter $1 (SQLSTATE 42P18)"}
 {"time_stamp":"2024-08-02T09:49:24.137+0700","message":"success login","userID":{"ID":5,"RoleID":2,"Username":"string","Email":"string@string.string","Password":"$2a$10$gAf.Oys1pFZzjrUNwnTtDOSEhQNJ1C/JmqD15f9G3Nffjt/OGavfC","CreatedAt":"2024-08-02T09:07:50.431652+07:00","UpdatedAt":"2024-08-02T09:07:50.431652+07:00","Role":{"ID":0,"Name":"","CreatedAt":"0001-01-01T00:00:00Z","UpdatedAt":"0001-01-01T00:00:00Z"}}}
+{"time_stamp":"2024-08-02T10:37:39.382+0700","message":"user registered successfully","userID":8}
+{"time_stamp":"2024-08-02T10:57:14.372+0700","message":"global error handler","error":"Email or password is incorrect"}
+{"time_stamp":"2024-08-02T11:15:56.352+0700","message":"global error handler","error":"Username or email already exists"}
+{"time_stamp":"2024-08-02T11:16:44.110+0700","message":"user registered successfully","userID":2}
