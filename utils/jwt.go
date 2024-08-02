@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -11,21 +12,37 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gowesmart/api-gowesmart/exceptions"
 	"github.com/gowesmart/api-gowesmart/model/entity"
+	"github.com/joho/godotenv"
 )
 
-var API_SECRET = GetEnv("API_SECRET", "W8j8sLNYNXyhVyjAcyajsjdiuaWMCHGFGfcwEG8WsxlOMsPgX0vF73LmSslCaofZls8oNMSmj8bNFnZpxqD3JUUmPhYtRI5gIsSi9riGHTXpgja6RETJiXFI4WTsIfszZcwoW")
+var API_SECRET string
 
+type Claims struct {
+	UserID uint   `json:"user_id"`
+	RoleID string `json:"role_id"`
+	jwt.RegisteredClaims
+}
+
+func init() {
+	if os.Getenv("ENVIRONMENT") != "production" {
+		err := godotenv.Load()
+		PanicIfError(err)
+		API_SECRET = MustGetEnv("API_SECRET")
+	}
+}
 func GenerateToken(userId uint, userRole string) (string, error) {
 	tokenLifeSpan, err := strconv.Atoi(GetEnv("TOKEN_HOUR_LIFESPAN", "1"))
 	if err != nil {
 		return "", err
 	}
 
-	claims := jwt.MapClaims{}
-	claims["authorized"] = true
-	claims["user_id"] = userId
-	claims["user_role"] = userRole
-	claims["exp"] = time.Now().Add(time.Hour * time.Duration(tokenLifeSpan)).Unix()
+	claims := &Claims{
+		UserID: userId,
+		RoleID: userRole,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(tokenLifeSpan))),
+		},
+	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString([]byte(API_SECRET))
