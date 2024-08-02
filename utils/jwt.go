@@ -18,8 +18,8 @@ import (
 var API_SECRET string
 
 type Claims struct {
-	UserID uint   `json:"user_id"`
-	RoleID string `json:"role_id"`
+	UserID uint `json:"user_id"`
+	RoleID uint `json:"role_id"`
 	jwt.RegisteredClaims
 }
 
@@ -30,7 +30,7 @@ func init() {
 		API_SECRET = MustGetEnv("API_SECRET")
 	}
 }
-func GenerateToken(userId uint, userRole string) (string, error) {
+func GenerateToken(userId uint, roleId uint) (string, error) {
 	tokenLifeSpan, err := strconv.Atoi(GetEnv("TOKEN_HOUR_LIFESPAN", "1"))
 	if err != nil {
 		return "", err
@@ -38,7 +38,7 @@ func GenerateToken(userId uint, userRole string) (string, error) {
 
 	claims := &Claims{
 		UserID: userId,
-		RoleID: userRole,
+		RoleID: roleId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(tokenLifeSpan))),
 		},
@@ -74,34 +74,33 @@ func ExtractToken(c *gin.Context) string {
 	return ""
 }
 
-func ExtractTokenClaims(c *gin.Context) (id uint, role string, err error) {
+func ExtractTokenClaims(c *gin.Context) (*Claims, error) {
 	tokenString := ExtractToken(c)
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, exceptions.NewCustomError(http.StatusBadRequest, "Invalid or expired token")
 		}
 		return []byte(API_SECRET), nil
 	})
+
 	if err != nil {
-		return 0, "", exceptions.NewCustomError(http.StatusBadRequest, "Invalid or expired token")
+		return nil, exceptions.NewCustomError(http.StatusBadRequest, "Invalid or expired token")
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		return 0, "", exceptions.NewCustomError(http.StatusBadRequest, "Invalid or expired token")
+
+	if !token.Valid {
+		return nil, exceptions.NewCustomError(http.StatusBadRequest, "Invalid or expired token")
 	}
-	userId, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
-	if err != nil {
-		return 0, "", err
-	}
-	return uint(userId), claims["user_role"].(string), nil
+
+	return claims, nil
 }
 
 func UserRoleMustAdmin(c *gin.Context) {
-	_, role, err := ExtractTokenClaims(c)
+	claims, err := ExtractTokenClaims(c)
 	if err != nil {
 		PanicIfError(err)
 	}
-	if role != entity.RoleAdmin {
+	if claims.RoleID != uint(entity.IDRoleAdmin) {
 		PanicIfError(exceptions.NewCustomError(http.StatusForbidden, "Only admin can manipulate data"))
 	}
 }

@@ -94,7 +94,7 @@ func (service *UserService) Login(c *gin.Context, userReq *request.LoginRequest)
 		return nil, exceptions.NewCustomError(http.StatusUnauthorized, "Email or password is incorrect")
 	}
 
-	token, err := utils.GenerateToken(loginUser.ID, loginUser.Role.Name)
+	token, err := utils.GenerateToken(loginUser.ID, loginUser.RoleID)
 	if err != nil {
 		return nil, err
 	}
