@@ -76,10 +76,11 @@ func NewRouter() *gin.Engine {
 	db := NewConnection()
 
 	userService := services.NewUserService()
+	profileService := services.NewProfileService()
 
 	// ======================== USER =======================
 
-	userController := controllers.NewUserController(userService)
+	userController := controllers.NewUserController(userService, profileService)
 
 	r := gin.Default()
 

@@ -12,12 +12,14 @@ import (
 )
 
 type UserController struct {
-	UserService services.UserService
+	services.UserService
+	services.ProfileService
 }
 
-func NewUserController(userService *services.UserService) *UserController {
+func NewUserController(userService *services.UserService, profileService *services.ProfileService) *UserController {
 	return &UserController{
 		*userService,
+		*profileService,
 	}
 }
 
@@ -127,8 +129,35 @@ func (controller *UserController) GetCurrentUser(c *gin.Context) {
 	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
-	userResponse, err := controller.UserService.GetCurrentUser(c, uint(claims.UserID))
+	res, err := controller.UserService.GetCurrentUser(c, uint(claims.UserID))
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, userResponse, nil)
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// UpdateUserProfile godoc
+// @Summary Update user profile.
+// @Description Update user profile.
+// @Tags Users
+// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
+// @Produce json
+// @Success 200 {object} web.WebSuccess[response.ProfileResponse]
+// @Failure 404 {object} web.WebNotFoundError
+// @Failure 400 {object} web.WebBadRequestError
+// @Failure 500 {object} web.WebInternalServerError
+// @Router /api/users/profile [get]
+func (controller *UserController) UpdateUserProfile(c *gin.Context) {
+	var profileUpdateReq request.ProfileUpdateRequest
+
+	err := c.ShouldBindJSON(&profileUpdateReq)
+	utils.PanicIfError(err)
+
+	claims, err := utils.ExtractTokenClaims(c)
+	utils.PanicIfError(err)
+
+	res, err := controller.ProfileService.UpdateProfile(c, &profileUpdateReq, uint(claims.UserID))
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
 }
