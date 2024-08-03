@@ -3,19 +3,19 @@ package app
 import (
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/utils"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 func NewConnection() *gorm.DB {
-	db, err := gorm.Open(postgres.Open(utils.MustGetEnv("DB_DSN")), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(utils.MustGetEnv("DB_DSN")), &gorm.Config{
 		QueryFields: true,
 		Logger:      logger.Default.LogMode(logger.Info),
 	})
 	utils.PanicIfError(err)
 
-	err = db.AutoMigrate(&entity.User{}, &entity.Profile{}, &entity.Role{})
+	err = db.AutoMigrate(&entity.User{}, &entity.Profile{}, &entity.Role{}, &entity.Transaction{}, &entity.Order{})
 	utils.PanicIfError(err)
 
 	return db
