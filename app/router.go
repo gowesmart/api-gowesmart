@@ -76,11 +76,12 @@ func NewRouter() *gin.Engine {
 	db := NewConnection()
 
 	userService := services.NewUserService()
+	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
 
 	// ======================== USER =======================
 
-	userController := controllers.NewUserController(userService)
+	userController := controllers.NewUserController(userService, profileService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 
 	r := gin.Default()
@@ -121,9 +122,12 @@ func NewRouter() *gin.Engine {
 
 	userRouter := apiRouter.Group("/users")
 
+	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
+
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
 	userRouter.GET("/current", userController.GetCurrentUser)
+	userRouter.PATCH("/profile", userController.UpdateUserProfile)
 
 	// ======================== TRANSACTION ROUTE ======================
 	transactionRouter := apiRouter.Group("/transactions")

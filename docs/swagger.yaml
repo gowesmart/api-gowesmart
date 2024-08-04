@@ -25,6 +25,35 @@ definitions:
     - email
     - password
     type: object
+  request.ProfileUpdateRequest:
+    properties:
+      age:
+        minimum: 0
+        type: integer
+      bio:
+        maxLength: 700
+        type: string
+        x-order: "3"
+      email:
+        type: string
+        x-order: "1"
+      gender:
+        enum:
+        - MALE
+        - FEMALE
+        type: string
+        x-order: "5"
+      name:
+        maxLength: 150
+        minLength: 3
+        type: string
+        x-order: "2"
+      username:
+        maxLength: 20
+        minLength: 3
+        type: string
+        x-order: "0"
+    type: object
   request.RegisterRequest:
     properties:
       email:
@@ -129,6 +158,37 @@ definitions:
         type: integer
       totalPrice:
         type: integer
+    type: object
+  response.ProfileResponse:
+    properties:
+      age:
+        example: 18
+        type: integer
+        x-order: "5"
+      bio:
+        example: I am Luigi
+        type: string
+        x-order: "4"
+      email:
+        example: luigi@sam.com
+        type: string
+        x-order: "2"
+      gender:
+        example: MALE
+        type: string
+        x-order: "6"
+      id:
+        example: 1
+        type: integer
+        x-order: "0"
+      name:
+        example: Luigi Di Caprio
+        type: string
+        x-order: "3"
+      username:
+        example: luigi
+        type: string
+        x-order: "1"
     type: object
   response.RegisterResponse:
     properties:
@@ -281,6 +341,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.LoginResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_ProfileResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.ProfileResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_RegisterResponse:
@@ -683,6 +762,76 @@ paths:
       security:
       - BearerToken: []
       summary: Get current user.
+      tags:
+      - Users
+  /api/users/profile:
+    patch:
+      description: Update user profile.
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: the body to reset password
+        in: body
+        name: Body
+        required: true
+        schema:
+          $ref: '#/definitions/request.ProfileUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_ProfileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/web.WebUnauthorizedError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Update user profile.
+      tags:
+      - Users
+  /api/users/profile/{username}:
+    get:
+      description: Find a user profile by username.
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_ProfileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Find user profile.
       tags:
       - Users
 swagger: "2.0"

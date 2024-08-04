@@ -27,3 +27,6 @@ tmp/
 # IDE
 .idea
 .vscode
+
+# logs
+log/

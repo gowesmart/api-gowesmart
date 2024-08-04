@@ -514,6 +514,114 @@
                     }
                 }
             }
+        },
+        "/api/users/profile": {
+            "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Update user profile.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user profile.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "the body to reset password",
+                        "name": "Body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ProfileUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_ProfileResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebBadRequestError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebUnauthorizedError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/profile/{username}": {
+            "get": {
+                "description": "Find a user profile by username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Find user profile.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_ProfileResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -550,6 +658,44 @@
                     "type": "string",
                     "x-order": "1",
                     "example": "password"
+                }
+            }
+        },
+        "request.ProfileUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 3,
+                    "x-order": "0"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 3,
+                    "x-order": "2"
+                },
+                "bio": {
+                    "type": "string",
+                    "maxLength": 700,
+                    "x-order": "3"
+                },
+                "gender": {
+                    "type": "string",
+                    "enum": [
+                        "MALE",
+                        "FEMALE"
+                    ],
+                    "x-order": "5"
+                },
+                "age": {
+                    "type": "integer",
+                    "minimum": 0
                 }
             }
         },
@@ -697,6 +843,46 @@
                 },
                 "totalPrice": {
                     "type": "integer"
+                }
+            }
+        },
+        "response.ProfileResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "luigi"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "2",
+                    "example": "luigi@sam.com"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3",
+                    "example": "Luigi Di Caprio"
+                },
+                "bio": {
+                    "type": "string",
+                    "x-order": "4",
+                    "example": "I am Luigi"
+                },
+                "age": {
+                    "type": "integer",
+                    "x-order": "5",
+                    "example": 18
+                },
+                "gender": {
+                    "type": "string",
+                    "x-order": "6",
+                    "example": "MALE"
                 }
             }
         },
@@ -918,6 +1104,37 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.LoginResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_ProfileResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.ProfileResponse"
                         }
                     ],
                     "x-order": "2"

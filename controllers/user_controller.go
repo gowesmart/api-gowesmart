@@ -12,12 +12,14 @@ import (
 )
 
 type UserController struct {
-	UserService services.UserService
+	userService    services.UserService
+	profileService services.ProfileService
 }
 
-func NewUserController(userService *services.UserService) *UserController {
+func NewUserController(userService *services.UserService, profileService *services.ProfileService) *UserController {
 	return &UserController{
 		*userService,
+		*profileService,
 	}
 }
 
@@ -37,7 +39,7 @@ func (controller *UserController) Register(c *gin.Context) {
 	err := c.ShouldBindJSON(&registerReq)
 	utils.PanicIfError(err)
 
-	res, err := controller.UserService.Register(c, &registerReq)
+	res, err := controller.userService.Register(c, &registerReq)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusCreated, res, nil)
@@ -60,7 +62,7 @@ func (controller *UserController) Login(c *gin.Context) {
 	err := c.ShouldBindJSON(&loginReq)
 	utils.PanicIfError(err)
 
-	res, err := controller.UserService.Login(c, &loginReq)
+	res, err := controller.userService.Login(c, &loginReq)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)
@@ -81,7 +83,7 @@ func (controller *UserController) ForgotPassword(c *gin.Context) {
 	err := c.ShouldBindJSON(&forgotPasswordReq)
 	utils.PanicIfError(err)
 
-	res, err := controller.UserService.ForgotPassword(c, &forgotPasswordReq)
+	res, err := controller.userService.ForgotPassword(c, &forgotPasswordReq)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)
@@ -105,7 +107,7 @@ func (controller *UserController) ResetPassword(c *gin.Context) {
 	err := c.ShouldBindJSON(&resetPasswordReq)
 	utils.PanicIfError(err)
 
-	err = controller.UserService.ResetPassword(c, &resetPasswordReq)
+	err = controller.userService.ResetPassword(c, &resetPasswordReq)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "password updated", nil)
@@ -127,8 +129,55 @@ func (controller *UserController) GetCurrentUser(c *gin.Context) {
 	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
-	userResponse, err := controller.UserService.GetCurrentUser(c, uint(claims.UserID))
+	res, err := controller.userService.GetCurrentUser(c, uint(claims.UserID))
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, userResponse, nil)
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// UpdateUserProfile godoc
+// @Summary Update user profile.
+// @Description Update user profile.
+// @Tags Users
+// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Param Body body request.ProfileUpdateRequest true "the body to reset password"
+// @Security BearerToken
+// @Produce json
+// @Success 200 {object} web.WebSuccess[response.ProfileResponse]
+// @Failure 404 {object} web.WebNotFoundError
+// @Failure 400 {object} web.WebBadRequestError
+// @Failure 401 {object} web.WebUnauthorizedError
+// @Failure 500 {object} web.WebInternalServerError
+// @Router /api/users/profile [patch]
+func (controller *UserController) UpdateUserProfile(c *gin.Context) {
+	var profileUpdateReq request.ProfileUpdateRequest
+
+	err := c.ShouldBindJSON(&profileUpdateReq)
+	utils.PanicIfError(err)
+
+	claims, err := utils.ExtractTokenClaims(c)
+	utils.PanicIfError(err)
+
+	res, err := controller.profileService.UpdateProfile(c, &profileUpdateReq, uint(claims.UserID))
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// Find user profile godoc
+// @Summary Find user profile.
+// @Description Find a user profile by username.
+// @Tags Users
+// @Param username path string true "username"
+// @Produce json
+// @Success 200 {object} web.WebSuccess[response.ProfileResponse]
+// @Failure 404 {object} web.WebNotFoundError
+// @Failure 500 {object} web.WebInternalServerError
+// @Router /api/users/profile/{username} [get]
+func (controller *UserController) FindProfileByUsername(c *gin.Context) {
+
+	car, err := controller.profileService.FindProfileByUsername(c, c.Param("username"))
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, car, nil)
 }

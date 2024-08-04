@@ -67,13 +67,13 @@ func (t TransactionService) Create(c *gin.Context, userId int, payloads []reques
 
 		wg.Wait()
 		close(channels)
-		
+
 		for channel := range channels {
 			if channel != nil {
 				return channel
 			}
 		}
-		
+
 		return nil
 	})
 
@@ -172,12 +172,12 @@ func toTransactionEntity(userId int, payloads []request.TransactionCreate) entit
 	return transaction
 }
 
-func toOrderEntity(userId int, transactionId int , payload request.TransactionCreate) entity.Order {
+func toOrderEntity(userId int, transactionId int, payload request.TransactionCreate) entity.Order {
 	order := entity.Order{
-		BikeID: payload.BikeID,
-		Quantity: payload.Quantity,
-		TotalPrice: payload.TotalPrice,
-		UserID: userId,
+		BikeID:        payload.BikeID,
+		Quantity:      payload.Quantity,
+		TotalPrice:    payload.TotalPrice,
+		UserID:        userId,
 		TransactionID: transactionId,
 	}
 
@@ -208,7 +208,7 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 }
 
 // concurrent
-func createOrder(wg *sync.WaitGroup,channels chan error, tx *gorm.DB, userId, transactionId int, payload request.TransactionCreate) {
+func createOrder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, userId, transactionId int, payload request.TransactionCreate) {
 	defer wg.Done()
 
 	order := toOrderEntity(userId, transactionId, payload)
@@ -222,7 +222,7 @@ func createOrder(wg *sync.WaitGroup,channels chan error, tx *gorm.DB, userId, tr
 
 func updateorder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, payload request.TransactionUpdate, transaction *entity.Transaction) {
 	defer wg.Done()
-	
+
 	var order entity.Order
 	if err := tx.Where("id = ?", payload.ID).First(&order).Error; err != nil {
 		channels <- err
@@ -240,7 +240,6 @@ func updateorder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, payload r
 		channels <- err
 		return
 	}
-
 
 	channels <- nil
 }

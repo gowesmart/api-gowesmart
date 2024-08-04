@@ -69,7 +69,7 @@ func (t TransactionController) GetById(c *gin.Context) {
 // @Router /api/transactions/{userId} [post]
 func (t TransactionController) Create(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("userId"))
-	
+
 	var payload []request.TransactionCreate
 	err := c.ShouldBindJSON(&payload)
 	utils.PanicIfError(err)
@@ -94,7 +94,7 @@ func (t TransactionController) Create(c *gin.Context) {
 // @Router /api/transactions/{id} [patch]
 func (t TransactionController) Update(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	
+
 	var payload []request.TransactionUpdate
 	err := c.ShouldBindJSON(&payload)
 	utils.PanicIfError(err)

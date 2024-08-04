@@ -74,7 +74,7 @@ func (service *UserService) Login(c *gin.Context, userReq *request.LoginRequest)
 			Preload("Role").
 			Where("email = ?", loginUser.Email).Take(&loginUser).Error
 		if err != nil {
-			return exceptions.NewCustomError(http.StatusUnauthorized, err.Error())
+			return exceptions.NewCustomError(http.StatusUnauthorized, "Email or password is incorrect")
 		}
 
 		return nil
