@@ -13,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/gowesmart/api-gowesmart/controllers"
+	"github.com/gowesmart/api-gowesmart/middlewares"
 	"github.com/joho/godotenv"
 
 	"github.com/gowesmart/api-gowesmart/docs"
@@ -113,21 +114,16 @@ func NewRouter() *gin.Engine {
 
 	authRouter.POST("/register", userController.Register)
 	authRouter.POST("/login", userController.Login)
-	// apiRouter.POST("/auth/forgot-password", userController.ForgotPassword)
-	// apiRouter.POST("/auth/reset-password", userController.ResetPassword)
+	authRouter.POST("/forgot-password", userController.ForgotPassword)
+	authRouter.POST("/reset-password", userController.ResetPassword)
 
-	// // ======================== USERS ROUTE =======================
+	// ======================== USERS ROUTE =======================
 
-	// userRouter := apiRouter.Group("/users")
+	userRouter := apiRouter.Group("/users")
 
-	// apiRouter.GET("/users/profile/:id", userController.GetUserProfile)
-	// apiRouter.GET("/users/current", userController.GetCurrentUser)
+	userRouter.Use(middlewares.JwtAuthMiddleware)
 
-	// userRouter.Use(middlewares.JwtAuthMiddleware)
-
-	// userRouter.PATCH("/password", userController.UpdatePassword)
-	// userRouter.PATCH("/profile", userController.UpdateUserProfile)
-	// userRouter.DELETE("", userController.DeleteUserProfile)
+	userRouter.GET("/current", userController.GetCurrentUser)
 
 	// ======================== TRANSACTION ROUTE ======================
 	transactionRouter := apiRouter.Group("/transactions")
