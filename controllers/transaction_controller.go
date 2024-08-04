@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
+	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
 	"github.com/gowesmart/api-gowesmart/utils"
 )
@@ -19,11 +21,11 @@ func NewTransactionController(service services.TransactionService) TransactionCo
 }
 
 // Register godoc
-// @Summary Transaction get all transaction.
+// @Summary Get all transaction.
 // @Description Registering a user from public access.
-// @Tags Auth
+// @Tags Transactions
 // @Produce json
-// @Success 200 {object} web.WebSuccess[response.TransactionResponse]
+// @Success 200 {object} web.WebSuccess[[]response.TransactionResponse]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions [get]
@@ -89,7 +91,7 @@ func (t TransactionController) Create(c *gin.Context) {
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
-// @Router /api/transactions/{id} [put]
+// @Router /api/transactions/{id} [patch]
 func (t TransactionController) Update(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	
@@ -131,7 +133,7 @@ func (t TransactionController) Delete(c *gin.Context) {
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
-// @Router /api/transactions/{id}/pay [post]
+// @Router /api/transactions/payment/{id} [patch]
 func (t TransactionController) Pay(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 
