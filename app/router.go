@@ -120,9 +120,12 @@ func NewRouter() *gin.Engine {
 
 	userRouter := apiRouter.Group("/users")
 
+	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
+
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
 	userRouter.GET("/current", userController.GetCurrentUser)
+	userRouter.PATCH("/profile", userController.UpdateUserProfile)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 

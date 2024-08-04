@@ -1,7 +1,10 @@
 package services
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/gowesmart/api-gowesmart/exceptions"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
@@ -19,6 +22,8 @@ func NewProfileService() *ProfileService {
 func (service *ProfileService) UpdateProfile(c *gin.Context, profileReq *request.ProfileUpdateRequest, userID uint) (*response.ProfileResponse, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
+	var res response.ProfileResponse
+
 	profileWithUser := service.toProfileEntity(profileReq, userID)
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -35,9 +40,9 @@ func (service *ProfileService) UpdateProfile(c *gin.Context, profileReq *request
 		}
 
 		if err := tx.Model(&entity.Profile{}).
-			Select("profiles.*, users.id, users.username, users.role, users.email").
-			Joins("left join users on users.id = profiles.user_id").
-			Take(&profileWithUser, "users.id = ?", userID).Error; err != nil {
+			Select("user_id as id, name, bio, age, gender, users.username, users.email").
+			Joins("JOIN users ON profiles.user_id = users.id").
+			Take(&res, "profiles.user_id = ?", userID).Error; err != nil {
 			return err
 		}
 		return nil
@@ -49,7 +54,24 @@ func (service *ProfileService) UpdateProfile(c *gin.Context, profileReq *request
 
 	logger.Info("success updating user profile", zap.Uint("userID", userID))
 
-	return service.toProfileResponse(profileWithUser), nil
+	return &res, nil
+}
+
+func (service *ProfileService) FindProfileByUsername(c *gin.Context, username string) (*response.ProfileResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
+
+	var res response.ProfileResponse
+
+	err := db.Model(&entity.Profile{}).
+		Select("user_id as id, name, bio, age, gender, users.username, users.email").
+		Joins("JOIN users ON profiles.user_id = users.id").
+		Take(&res, "users.username = ?", username).Error
+
+	if err != nil {
+		return nil, exceptions.NewCustomError(http.StatusNotFound, "User not found")
+	}
+
+	return &res, nil
 }
 
 func (*ProfileService) toProfileEntity(req *request.ProfileUpdateRequest, userID uint) *entity.Profile {
@@ -63,18 +85,5 @@ func (*ProfileService) toProfileEntity(req *request.ProfileUpdateRequest, userID
 			Username: req.Username,
 			Email:    req.Email,
 		},
-	}
-}
-
-func (*ProfileService) toProfileResponse(profile *entity.Profile) *response.ProfileResponse {
-	return &response.ProfileResponse{
-		ID:       profile.ID,
-		Username: profile.User.Username,
-		Email:    profile.User.Email,
-		Role:     profile.User.Role.Name,
-		Name:     &profile.Name,
-		Bio:      &profile.Bio,
-		Age:      &profile.Age,
-		Gender:   &profile.Gender,
 	}
 }

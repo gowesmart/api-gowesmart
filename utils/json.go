@@ -20,14 +20,9 @@ func ToResponseJSON[T any](c *gin.Context, code int, data T, pagination *web.Met
 	}
 
 	c.JSON(code, web.WebSuccess[T]{
-		Code:    code,
-		Message: http.StatusText(code),
-		Payload: data,
-		Metadata: &web.Metadata{
-			Page:       pagination.Page,
-			Limit:      pagination.Limit,
-			TotalPages: pagination.TotalPages,
-			TotalData:  pagination.TotalData,
-		},
+		Code:     code,
+		Message:  http.StatusText(code),
+		Payload:  data,
+		Metadata: pagination,
 	})
 }
