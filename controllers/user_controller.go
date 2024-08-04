@@ -24,15 +24,15 @@ func NewUserController(userService *services.UserService, profileService *servic
 }
 
 // Register godoc
-// @Summary User register.
-// @Description Registering a user from public access.
-// @Tags Auth
-// @Param Body body request.RegisterRequest true "the body to register a user"
-// @Produce json
-// @Success 201 {object} web.WebSuccess[response.RegisterResponse]
-// @Failure 400 {object} web.WebBadRequestError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/auth/register [post]
+//	@Summary		User register.
+//	@Description	Registering a user from public access.
+//	@Tags			Auth
+//	@Param			Body	body	request.RegisterRequest	true	"the body to register a user"
+//	@Produce		json
+//	@Success		201	{object}	web.WebSuccess[response.RegisterResponse]
+//	@Failure		400	{object}	web.WebBadRequestError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/auth/register [post]
 func (controller *UserController) Register(c *gin.Context) {
 	var registerReq request.RegisterRequest
 
@@ -46,16 +46,16 @@ func (controller *UserController) Register(c *gin.Context) {
 }
 
 // LoginUser godoc
-// @Summary User login.
-// @Description Logging in to get jwt token to access admin or user api by roles.
-// @Tags Auth
-// @Param Body body request.LoginRequest true "the body to login a user"
-// @Produce json
-// @Success 200 {object} web.WebSuccess[response.LoginResponse]
-// @Failure 400 {object} web.WebBadRequestError
-// @Failure 401 {object} web.WebUnauthorizedError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/auth/login [post]
+//	@Summary		User login.
+//	@Description	Logging in to get jwt token to access admin or user api by roles.
+//	@Tags			Auth
+//	@Param			Body	body	request.LoginRequest	true	"the body to login a user"
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[response.LoginResponse]
+//	@Failure		400	{object}	web.WebBadRequestError
+//	@Failure		401	{object}	web.WebUnauthorizedError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/auth/login [post]
 func (controller *UserController) Login(c *gin.Context) {
 	var loginReq request.LoginRequest
 
@@ -69,15 +69,15 @@ func (controller *UserController) Login(c *gin.Context) {
 }
 
 // ForgotPassword godoc
-// @Summary Forgot password.
-// @Description Request forgot password.
-// @Tags Auth
-// @Param Body body request.ForgotPasswordRequest true "the body to request forgot password"
-// @Produce json
-// @Success 200 {object} web.WebSuccess[response.ForgotPasswordResponse]
-// @Failure 404 {object} web.WebNotFoundError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/auth/forgot-password [post]
+//	@Summary		Forgot password.
+//	@Description	Request forgot password.
+//	@Tags			Auth
+//	@Param			Body	body	request.ForgotPasswordRequest	true	"the body to request forgot password"
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[response.ForgotPasswordResponse]
+//	@Failure		404	{object}	web.WebNotFoundError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/auth/forgot-password [post]
 func (controller *UserController) ForgotPassword(c *gin.Context) {
 	var forgotPasswordReq request.ForgotPasswordRequest
 	err := c.ShouldBindJSON(&forgotPasswordReq)
@@ -90,18 +90,18 @@ func (controller *UserController) ForgotPassword(c *gin.Context) {
 }
 
 // ResetPassword godoc
-// @Summary Reset password.
-// @Description Reset password.
-// @Tags Auth
-// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
-// @Security BearerToken
-// @Param Body body request.ResetPasswordRequest true "the body to reset password"
-// @Produce json
-// @Success 200 {object} web.WebSuccess[string]
-// @Failure 400 {object} web.WebBadRequestError
-// @Failure 404 {object} web.WebNotFoundError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/auth/reset-password [post]
+//	@Summary		Reset password.
+//	@Description	Reset password.
+//	@Tags			Auth
+//	@Param			Authorization	header	string	true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+//	@Security		BearerToken
+//	@Param			Body	body	request.ResetPasswordRequest	true	"the body to reset password"
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[string]
+//	@Failure		400	{object}	web.WebBadRequestError
+//	@Failure		404	{object}	web.WebNotFoundError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/auth/reset-password [post]
 func (controller *UserController) ResetPassword(c *gin.Context) {
 	var resetPasswordReq request.ResetPasswordRequest
 	err := c.ShouldBindJSON(&resetPasswordReq)
@@ -114,17 +114,17 @@ func (controller *UserController) ResetPassword(c *gin.Context) {
 }
 
 // GetCurrentUser godoc
-// @Summary Get current user.
-// @Description Get current user.
-// @Tags Users
-// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
-// @Security BearerToken
-// @Produce json
-// @Success 200 {object} web.WebSuccess[response.GetUserCurrentResponse]
-// @Failure 404 {object} web.WebNotFoundError
-// @Failure 400 {object} web.WebBadRequestError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/users/current [get]
+//	@Summary		Get current user.
+//	@Description	Get current user.
+//	@Tags			Users
+//	@Param			Authorization	header	string	true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+//	@Security		BearerToken
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[response.GetUserCurrentResponse]
+//	@Failure		404	{object}	web.WebNotFoundError
+//	@Failure		400	{object}	web.WebBadRequestError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/users/current [get]
 func (controller *UserController) GetCurrentUser(c *gin.Context) {
 	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
@@ -136,19 +136,19 @@ func (controller *UserController) GetCurrentUser(c *gin.Context) {
 }
 
 // UpdateUserProfile godoc
-// @Summary Update user profile.
-// @Description Update user profile.
-// @Tags Users
-// @Param Authorization header string true "Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
-// @Param Body body request.ProfileUpdateRequest true "the body to reset password"
-// @Security BearerToken
-// @Produce json
-// @Success 200 {object} web.WebSuccess[response.ProfileResponse]
-// @Failure 404 {object} web.WebNotFoundError
-// @Failure 400 {object} web.WebBadRequestError
-// @Failure 401 {object} web.WebUnauthorizedError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/users/profile [patch]
+//	@Summary		Update user profile.
+//	@Description	Update user profile.
+//	@Tags			Users
+//	@Param			Authorization	header	string							true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+//	@Param			Body			body	request.ProfileUpdateRequest	true	"the body to reset password"
+//	@Security		BearerToken
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[response.ProfileResponse]
+//	@Failure		404	{object}	web.WebNotFoundError
+//	@Failure		400	{object}	web.WebBadRequestError
+//	@Failure		401	{object}	web.WebUnauthorizedError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/users/profile [patch]
 func (controller *UserController) UpdateUserProfile(c *gin.Context) {
 	var profileUpdateReq request.ProfileUpdateRequest
 
@@ -165,15 +165,15 @@ func (controller *UserController) UpdateUserProfile(c *gin.Context) {
 }
 
 // Find user profile godoc
-// @Summary Find user profile.
-// @Description Find a user profile by username.
-// @Tags Users
-// @Param username path string true "username"
-// @Produce json
-// @Success 200 {object} web.WebSuccess[response.ProfileResponse]
-// @Failure 404 {object} web.WebNotFoundError
-// @Failure 500 {object} web.WebInternalServerError
-// @Router /api/users/profile/{username} [get]
+//	@Summary		Find user profile.
+//	@Description	Find a user profile by username.
+//	@Tags			Users
+//	@Param			username	path	string	true	"username"
+//	@Produce		json
+//	@Success		200	{object}	web.WebSuccess[response.ProfileResponse]
+//	@Failure		404	{object}	web.WebNotFoundError
+//	@Failure		500	{object}	web.WebInternalServerError
+//	@Router			/api/users/profile/{username} [get]
 func (controller *UserController) FindProfileByUsername(c *gin.Context) {
 
 	car, err := controller.profileService.FindProfileByUsername(c, c.Param("username"))

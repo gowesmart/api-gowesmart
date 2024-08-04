@@ -78,11 +78,13 @@ func NewRouter() *gin.Engine {
 	userService := services.NewUserService()
 	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
+	reviewService := services.NewReviewService()
 
 	// ======================== USER =======================
 
 	userController := controllers.NewUserController(userService, profileService)
 	transactionController := controllers.NewTransactionController(*transactionService)
+	reviewController := controllers.NewReviewController(reviewService)
 
 	r := gin.Default()
 
@@ -138,6 +140,14 @@ func NewRouter() *gin.Engine {
 	transactionRouter.PATCH("/:id", transactionController.Update)
 	transactionRouter.DELETE("/:id", transactionController.Delete)
 	transactionRouter.PATCH("/payment/:id", transactionController.Pay)
+
+	// ======================== Review ROUTE ======================
+	reviewRouter := apiRouter.Group("/reviews")
+	reviewRouter.POST("/", reviewController.CreateReview)
+	reviewRouter.PUT("/:id", reviewController.UpdateReview)
+	reviewRouter.DELETE("/:id", reviewController.DeleteReview)
+	reviewRouter.GET("/", reviewController.GetAllReviews)
+	reviewRouter.GET("/:id", reviewController.GetReviewByID)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
