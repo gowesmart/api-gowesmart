@@ -1,4 +1,39 @@
 definitions:
+  request.CreateBikeRequest:
+    properties:
+      brand:
+        type: string
+      category_id:
+        type: integer
+      description:
+        type: string
+      image_url:
+        type: string
+      is_available:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+      year:
+        type: integer
+    required:
+    - brand
+    - category_id
+    - name
+    - price
+    - stock
+    - year
+    type: object
+  request.CreateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   request.CreateReviewRequest:
     properties:
       bike_id:
@@ -120,6 +155,34 @@ definitions:
       totalPrice:
         type: integer
     type: object
+  request.UpdateBikeRequest:
+    properties:
+      brand:
+        type: string
+      category_id:
+        type: integer
+      description:
+        type: string
+      image_url:
+        type: string
+      is_available:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+      year:
+        type: integer
+    type: object
+  request.UpdateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
   request.UpdateReviewRequest:
     properties:
       comment:
@@ -129,6 +192,40 @@ definitions:
     required:
     - comment
     - rating
+    type: object
+  response.BikeResponse:
+    properties:
+      brand:
+        type: string
+      category_id:
+        type: integer
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      is_available:
+        type: boolean
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+      updated_at:
+        type: string
+      year:
+        type: integer
+    type: object
+  response.CategoryResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   response.ForgotPasswordResponse:
     properties:
@@ -320,6 +417,46 @@ definitions:
         example: Not Found
         type: string
     type: object
+  web.WebSuccess-array_response_BikeResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        items:
+          $ref: '#/definitions/response.BikeResponse'
+        type: array
+        x-order: "2"
+    type: object
+  web.WebSuccess-array_response_CategoryResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        items:
+          $ref: '#/definitions/response.CategoryResponse'
+        type: array
+        x-order: "2"
+    type: object
   web.WebSuccess-array_response_ReviewResponse:
     properties:
       code:
@@ -358,6 +495,44 @@ definitions:
         items:
           $ref: '#/definitions/response.TransactionResponse'
         type: array
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_BikeResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.BikeResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_CategoryResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.CategoryResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_ForgotPasswordResponse:
@@ -669,6 +844,280 @@ paths:
       summary: Reset password.
       tags:
       - Auth
+  /api/bikes:
+    get:
+      description: Get all bikes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-array_response_BikeResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get all bikes
+      tags:
+      - Bikes
+    post:
+      consumes:
+      - application/json
+      description: Create a new bike
+      parameters:
+      - description: Bike body
+        in: body
+        name: bike
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateBikeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_BikeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Create a bike
+      tags:
+      - Bikes
+  /api/bikes/{id}:
+    delete:
+      description: Delete a bike by ID
+      parameters:
+      - description: Bike ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_BikeResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Delete a bike
+      tags:
+      - Bikes
+    get:
+      description: Get a bike by ID
+      parameters:
+      - description: Bike ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_BikeResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get a bike by ID
+      tags:
+      - Bikes
+    put:
+      consumes:
+      - application/json
+      description: Update an existing bike
+      parameters:
+      - description: Bike ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Bike body
+        in: body
+        name: bike
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateBikeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_BikeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Update a bike
+      tags:
+      - Bikes
+  /api/categories:
+    get:
+      description: Get all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-array_response_CategoryResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get all categories
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: Category body
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/request.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Create a category
+      tags:
+      - Categories
+  /api/categories/{id}:
+    delete:
+      description: Delete a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CategoryResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Delete a category
+      tags:
+      - Categories
+    get:
+      description: Get a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CategoryResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get a category by ID
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Update an existing category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category body
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Update a category
+      tags:
+      - Categories
   /api/reviews:
     get:
       description: Get all reviews

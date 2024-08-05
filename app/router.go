@@ -35,8 +35,8 @@ func NewRouter() *gin.Engine {
 		swaggerSchemes = []string{"http"}
 	}
 
-	docs.SwaggerInfo.Title = "Car Review REST API"
-	docs.SwaggerInfo.Description = "This is a Car Review REST API Docs."
+	docs.SwaggerInfo.Title = "GowesMart REST API"
+	docs.SwaggerInfo.Description = "This is a GowesMart REST API Docs."
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = utils.MustGetEnv("SERVER_HOST")
 	docs.SwaggerInfo.Schemes = swaggerSchemes
@@ -79,12 +79,16 @@ func NewRouter() *gin.Engine {
 	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
 	reviewService := services.NewReviewService()
+	categoryService := services.NewCategoryService()
+	bikeService := services.NewBikeService()
 
 	// ======================== USER =======================
 
 	userController := controllers.NewUserController(userService, profileService, transactionService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
+	categoryController := controllers.NewCategoryController(categoryService)
+	bikeController := controllers.NewBikeController(bikeService)
 
 	r := gin.Default()
 
@@ -149,6 +153,22 @@ func NewRouter() *gin.Engine {
 	reviewRouter.DELETE("/:id", reviewController.DeleteReview)
 	reviewRouter.GET("/", reviewController.GetAllReviews)
 	reviewRouter.GET("/:id", reviewController.GetReviewByID)
+
+	// ======================== Category ROUTE ======================
+	categoryRouter := apiRouter.Group("/categories")
+	categoryRouter.POST("/", categoryController.CreateCategory)
+	categoryRouter.PUT("/:id", categoryController.UpdateCategory)
+	categoryRouter.DELETE("/:id", categoryController.DeleteCategory)
+	categoryRouter.GET("/", categoryController.GetAllCategories)
+	categoryRouter.GET("/:id", categoryController.GetCategoryByID)
+
+	// ======================== Bike ROUTE ======================
+	bikeRouter := apiRouter.Group("/bikes")
+	bikeRouter.POST("/", bikeController.CreateBike)
+	bikeRouter.PUT("/:id", bikeController.UpdateBike)
+	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
+	bikeRouter.GET("/", bikeController.GetAllBikes)
+	bikeRouter.GET("/:id", bikeController.GetBikeByID)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
