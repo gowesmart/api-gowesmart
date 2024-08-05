@@ -2,9 +2,11 @@ package services
 
 import (
 	"errors"
+	"net/http"
 	"sync"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gowesmart/api-gowesmart/exceptions"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
@@ -156,6 +158,33 @@ func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
 	}
 
 	return nil
+}
+
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId int) (*response.UserTransactionResponse, error) {
+	db, _ := utils.GetDBAndLogger(c)
+
+	var user entity.User
+
+	err := db.Preload("Transaction").Take(&user, userId).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, exceptions.NewCustomError(http.StatusNotFound, "user not found")
+		}
+		return nil, err
+	}
+
+	var userTransactions []response.TransactionResponse
+	for _, transaction := range user.Transaction {
+		result := toResponse(transaction)
+		userTransactions = append(userTransactions, result)
+	}
+
+	return &response.UserTransactionResponse{
+		ID:          user.ID,
+		Username:    user.Username,
+		Transaction: userTransactions,
+	}, nil
 }
 
 // helpers
