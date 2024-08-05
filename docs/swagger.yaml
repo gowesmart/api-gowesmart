@@ -267,6 +267,17 @@ definitions:
       userId:
         type: integer
     type: object
+  response.UserTransactionResponse:
+    properties:
+      id:
+        type: integer
+      transaction:
+        items:
+          $ref: '#/definitions/response.TransactionResponse'
+        type: array
+      username:
+        type: string
+    type: object
   web.Metadata:
     properties:
       limit:
@@ -480,6 +491,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.TransactionResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_UserTransactionResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.UserTransactionResponse'
         x-order: "2"
     type: object
   web.WebSuccess-string:
@@ -950,6 +980,33 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
+  /api/users/{id}/transactions:
+    get:
+      description: Find a user transactions by username.
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Find user transactions.
+      tags:
+      - Users
   /api/users/current:
     get:
       description: Get current user.

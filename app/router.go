@@ -58,7 +58,7 @@ func NewRouter() *gin.Engine {
 	}
 
 	cfg := zap.Config{
-		OutputPaths: []string{"stdout", "./log/log.log"},
+		OutputPaths: []string{"stdout"},
 		EncoderConfig: zapcore.EncoderConfig{
 			MessageKey: "message",
 			LevelKey:   "level",
@@ -82,7 +82,7 @@ func NewRouter() *gin.Engine {
 
 	// ======================== USER =======================
 
-	userController := controllers.NewUserController(userService, profileService)
+	userController := controllers.NewUserController(userService, profileService, transactionService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
 
@@ -125,6 +125,7 @@ func NewRouter() *gin.Engine {
 	userRouter := apiRouter.Group("/users")
 
 	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
+	userRouter.GET("/:id/transactions", userController.FindUserTransaction)
 
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 

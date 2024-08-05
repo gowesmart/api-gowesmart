@@ -1,15 +1,15 @@
 package controllers
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
 	"github.com/gowesmart/api-gowesmart/utils"
-	"net/http"
-	"strconv"
-	_ "strconv"
 )
 
 type ReviewController struct {

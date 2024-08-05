@@ -840,6 +840,47 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/{id}/transactions": {
+            "get": {
+                "description": "Find a user transactions by username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Find user transactions.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_UserTransactionResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1217,6 +1258,23 @@ const docTemplate = `{
                 }
             }
         },
+        "response.UserTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "transaction": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.TransactionResponse"
+                    }
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "web.Metadata": {
             "type": "object",
             "properties": {
@@ -1540,6 +1598,37 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.TransactionResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_UserTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.UserTransactionResponse"
                         }
                     ],
                     "x-order": "2"
