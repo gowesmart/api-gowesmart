@@ -443,6 +443,41 @@
                 }
             }
         },
+        "/api/bikes/{id}/reviews": {
+            "get": {
+                "description": "Get reviews by bike id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bikes"
+                ],
+                "summary": "Get reviews by bike id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bike ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-array_response_ReviewResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/carts": {
             "post": {
                 "security": [
@@ -1185,13 +1220,6 @@
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "Transaction payload",
                         "name": "payload",
                         "in": "body",
@@ -1228,6 +1256,11 @@
         },
         "/api/transactions/payment/{id}": {
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Pay for a transaction",
                 "produces": [
                     "application/json"
@@ -1237,6 +1270,13 @@
                 ],
                 "summary": "Pay for a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1308,6 +1348,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Delete a transaction",
                 "produces": [
                     "application/json"
@@ -1317,6 +1362,13 @@
                 ],
                 "summary": "Delete a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1347,6 +1399,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update a transaction",
                 "consumes": [
                     "application/json"
@@ -1359,6 +1416,13 @@
                 ],
                 "summary": "Update a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1950,13 +2014,13 @@
         "request.TransactionCreate": {
             "type": "object",
             "properties": {
-                "bikeId": {
+                "bike_id": {
                     "type": "integer"
                 },
                 "quantity": {
                     "type": "integer"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 }
             }
@@ -1964,7 +2028,7 @@
         "request.TransactionUpdate": {
             "type": "object",
             "properties": {
-                "bikeId": {
+                "bike_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -1973,7 +2037,7 @@
                 "quantity": {
                     "type": "integer"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 }
             }
@@ -2335,10 +2399,7 @@
         "response.TransactionResponse": {
             "type": "object",
             "properties": {
-                "autoCreateTime": {
-                    "type": "string"
-                },
-                "autoUpdateTime": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
@@ -2353,10 +2414,13 @@
                 "status": {
                     "type": "string"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 },
-                "userId": {
+                "upodated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }

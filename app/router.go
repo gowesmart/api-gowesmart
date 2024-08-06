@@ -91,7 +91,7 @@ func NewRouter() *gin.Engine {
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
 	categoryController := controllers.NewCategoryController(categoryService)
-	bikeController := controllers.NewBikeController(bikeService)
+	bikeController := controllers.NewBikeController(bikeService, reviewService)
 	cartItemController := controllers.NewCartController(*cartItemService)
 
 	r := gin.Default()
@@ -146,7 +146,7 @@ func NewRouter() *gin.Engine {
 
 	transactionRouter.GET("", transactionController.GetAll)
 	transactionRouter.GET("/:id", transactionController.GetById)
-	transactionRouter.POST("/:userId", transactionController.Create)
+	transactionRouter.POST("", transactionController.Create)
 	transactionRouter.PATCH("/:id", transactionController.Update)
 	transactionRouter.DELETE("/:id", transactionController.Delete)
 	transactionRouter.PATCH("/payment/:id", transactionController.Pay)
@@ -174,6 +174,7 @@ func NewRouter() *gin.Engine {
 	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
+	bikeRouter.GET("/:id/reviews", bikeController.GetReviews)
 
 	// ======================== CART ITEM ROUTE ======================
 	cartRouter := apiRouter.Group("/carts")

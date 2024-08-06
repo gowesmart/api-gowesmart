@@ -454,6 +454,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/bikes/{id}/reviews": {
+            "get": {
+                "description": "Get reviews by bike id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bikes"
+                ],
+                "summary": "Get reviews by bike id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bike ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-array_response_ReviewResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/carts": {
             "post": {
                 "security": [
@@ -1196,13 +1231,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
-                        "description": "User ID",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "description": "Transaction payload",
                         "name": "payload",
                         "in": "body",
@@ -1239,6 +1267,11 @@ const docTemplate = `{
         },
         "/api/transactions/payment/{id}": {
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Pay for a transaction",
                 "produces": [
                     "application/json"
@@ -1248,6 +1281,13 @@ const docTemplate = `{
                 ],
                 "summary": "Pay for a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1319,6 +1359,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Delete a transaction",
                 "produces": [
                     "application/json"
@@ -1328,6 +1373,13 @@ const docTemplate = `{
                 ],
                 "summary": "Delete a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1358,6 +1410,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update a transaction",
                 "consumes": [
                     "application/json"
@@ -1370,6 +1427,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update a transaction",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Transaction ID",
@@ -1961,13 +2025,13 @@ const docTemplate = `{
         "request.TransactionCreate": {
             "type": "object",
             "properties": {
-                "bikeId": {
+                "bike_id": {
                     "type": "integer"
                 },
                 "quantity": {
                     "type": "integer"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 }
             }
@@ -1975,7 +2039,7 @@ const docTemplate = `{
         "request.TransactionUpdate": {
             "type": "object",
             "properties": {
-                "bikeId": {
+                "bike_id": {
                     "type": "integer"
                 },
                 "id": {
@@ -1984,7 +2048,7 @@ const docTemplate = `{
                 "quantity": {
                     "type": "integer"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 }
             }
@@ -2346,10 +2410,7 @@ const docTemplate = `{
         "response.TransactionResponse": {
             "type": "object",
             "properties": {
-                "autoCreateTime": {
-                    "type": "string"
-                },
-                "autoUpdateTime": {
+                "created_at": {
                     "type": "string"
                 },
                 "id": {
@@ -2364,10 +2425,13 @@ const docTemplate = `{
                 "status": {
                     "type": "string"
                 },
-                "totalPrice": {
+                "total_price": {
                     "type": "integer"
                 },
-                "userId": {
+                "upodated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }

@@ -164,22 +164,22 @@ definitions:
     type: object
   request.TransactionCreate:
     properties:
-      bikeId:
+      bike_id:
         type: integer
       quantity:
         type: integer
-      totalPrice:
+      total_price:
         type: integer
     type: object
   request.TransactionUpdate:
     properties:
-      bikeId:
+      bike_id:
         type: integer
       id:
         type: integer
       quantity:
         type: integer
-      totalPrice:
+      total_price:
         type: integer
     type: object
   request.UpdateBikeRequest:
@@ -429,9 +429,7 @@ definitions:
     type: object
   response.TransactionResponse:
     properties:
-      autoCreateTime:
-        type: string
-      autoUpdateTime:
+      created_at:
         type: string
       id:
         type: integer
@@ -441,9 +439,11 @@ definitions:
         type: array
       status:
         type: string
-      totalPrice:
+      total_price:
         type: integer
-      userId:
+      upodated_at:
+        type: string
+      user_id:
         type: integer
     type: object
   response.UserTransactionResponse:
@@ -1122,6 +1122,29 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
+  /api/bikes/{id}/reviews:
+    get:
+      description: Get reviews by bike id
+      parameters:
+      - description: Bike ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-array_response_ReviewResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get reviews by bike id
+      tags:
+      - Bikes
   /api/carts:
     delete:
       consumes:
@@ -1595,11 +1618,6 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: User ID
-        in: path
-        name: userId
-        required: true
-        type: integer
       - description: Transaction payload
         in: body
         name: payload
@@ -1632,6 +1650,11 @@ paths:
     delete:
       description: Delete a transaction
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Transaction ID
         in: path
         name: id
@@ -1652,6 +1675,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a transaction
       tags:
       - Transactions
@@ -1686,6 +1711,11 @@ paths:
       - application/json
       description: Update a transaction
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Transaction ID
         in: path
         name: id
@@ -1714,6 +1744,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update a transaction
       tags:
       - Transactions
@@ -1721,6 +1753,11 @@ paths:
     patch:
       description: Pay for a transaction
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Transaction ID
         in: path
         name: id
@@ -1741,6 +1778,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Pay for a transaction
       tags:
       - Transactions

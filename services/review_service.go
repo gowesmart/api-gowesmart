@@ -57,7 +57,7 @@ func (service *ReviewService) UpdateReview(c *gin.Context, reviewReq *request.Up
 	var review entity.Review
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("user_id = ?", reviewID).First(&review, reviewID).Error; err != nil {
+		if err := tx.Where("user_id = ?", userID).First(&review, reviewID).Error; err != nil {
 			return err
 		}
 
@@ -141,4 +141,22 @@ func (service *ReviewService) GetReviewByID(c *gin.Context, id uint) (*response.
 	logger.Info("success fetching review", zap.Uint("reviewID", id))
 
 	return &res, nil
+}
+
+func (service *ReviewService) GetReviewByBikeID(c *gin.Context, bikeID uint) ([]response.ReviewResponse, error) {
+	db, logger := utils.GetDBAndLogger(c)
+
+	var reviews []response.ReviewResponse
+
+	if err := db.Model(&entity.Review{}).
+		Where("bike_id = ?", bikeID).
+		Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
+		Find(&reviews).Error; err != nil {
+		logger.Error("failed to fetch reviews by bike id", zap.Error(err))
+		return nil, err
+	}
+
+	logger.Info("success fetching reviews by bike id")
+
+	return reviews, nil
 }

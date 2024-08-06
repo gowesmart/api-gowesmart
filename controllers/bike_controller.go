@@ -14,12 +14,14 @@ import (
 )
 
 type BikeController struct {
-	bikeService services.BikeService
+	bikeService   services.BikeService
+	reviewService services.ReviewService
 }
 
-func NewBikeController(bikeService *services.BikeService) *BikeController {
+func NewBikeController(bikeService *services.BikeService, reviewService *services.ReviewService) *BikeController {
 	return &BikeController{
 		*bikeService,
+		*reviewService,
 	}
 }
 
@@ -140,6 +142,27 @@ func (controller *BikeController) GetBikeByID(c *gin.Context) {
 	}
 
 	res, err := controller.bikeService.GetBikeByID(c, uint(id))
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// GetReviews godoc
+// @Summary Get reviews by bike id
+// @Description	Get reviews by bike id
+// @Tags Bikes
+// @Produce json
+// @Param id path uint true	"Bike ID"
+// @Success 200	{object} web.WebSuccess[[]response.ReviewResponse]
+// @Failure 500	{object} web.WebInternalServerError
+// @Router /api/bikes/{id}/reviews [get]
+func (controller *BikeController) GetReviews(c *gin.Context) {
+	bikeID, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
+
+	res, err := controller.reviewService.GetReviewByBikeID(c, uint(bikeID))
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)

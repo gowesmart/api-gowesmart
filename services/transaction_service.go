@@ -49,13 +49,13 @@ func (t TransactionService) GetById(c *gin.Context, transactionId int) (response
 	return result, nil
 }
 
-func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userId int) error {
+func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		transaction := toTransactionEntity(userId, payloads)
+		transaction := toTransactionEntity(userID, payloads)
 
 		if err := tx.Create(&transaction).Error; err != nil {
 			return err
@@ -63,7 +63,7 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 
 		wg.Add(len(payloads))
 		for _, payload := range payloads {
-			go createOrder(&wg, channels, tx, userId, transaction.ID, payload)
+			go createOrder(&wg, channels, tx, userID, transaction.ID, payload)
 		}
 
 		wg.Wait()
@@ -85,14 +85,14 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 	return nil
 }
 
-func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionId int) error {
+func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionID, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		var transaction entity.Transaction
-		if err := tx.Where("id = ?", transactionId).First(&transaction).Error; err != nil {
+		if err := tx.Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
 			return err
 		}
 
@@ -128,22 +128,22 @@ func (t TransactionService) Update(c *gin.Context, payloads []request.Transactio
 	return nil
 }
 
-func (t TransactionService) Delete(c *gin.Context, transactionId int) error {
+func (t TransactionService) Delete(c *gin.Context, transactionID, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var transaction entity.Transaction
-	if err := db.Where("id = ?", transactionId).Delete(&transaction).Error; err != nil {
+	if err := db.Where("user_id = ?", userID).Where("id = ?", transactionID).Delete(&transaction).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
+func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var transaction entity.Transaction
-	if err := db.Where("id = ?", transactionId).First(&transaction).Error; err != nil {
+	if err := db.Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
 		return err
 	}
 
@@ -159,12 +159,12 @@ func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
 	return nil
 }
 
-func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId uint) (*response.UserTransactionResponse, error) {
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, userID uint) (*response.UserTransactionResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var user entity.User
 
-	err := db.Preload("Transaction").Take(&user, userId).Error
+	err := db.Preload("Transaction").Take(&user, userID).Error
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
