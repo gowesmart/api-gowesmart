@@ -19,7 +19,7 @@ type UpdateBikeRequest struct {
 	Description string `json:"description"`
 	Year        int    `json:"year"`
 	Price       int    `json:"price"`
-	ImageUrl    string `json:"image_url" binding:"required,url"`
+	ImageUrl    string `json:"image_url" binding:"omitempty,url"`
 	Stock       int    `json:"stock"`
 	IsAvailable bool   `json:"is_available"`
 }

@@ -1066,6 +1066,11 @@ paths:
       - application/json
       description: Update an existing bike
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Bike ID
         in: path
         name: id
@@ -1096,6 +1101,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update a bike
       tags:
       - Bikes
