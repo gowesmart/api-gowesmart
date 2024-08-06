@@ -76,6 +76,7 @@ func NewRouter() *gin.Engine {
 	db := NewConnection()
 
 	userService := services.NewUserService()
+	roleService := services.NewRoleService()
 	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
 	reviewService := services.NewReviewService()
@@ -85,6 +86,7 @@ func NewRouter() *gin.Engine {
 	// ======================== USER =======================
 
 	userController := controllers.NewUserController(userService, profileService, transactionService)
+	roleController := controllers.NewRoleController(roleService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
 	categoryController := controllers.NewCategoryController(categoryService)
@@ -169,6 +171,9 @@ func NewRouter() *gin.Engine {
 	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
+
+	// Register routes
+	r.PUT("/roles/update", roleController.UpdateRoleByUserID)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
