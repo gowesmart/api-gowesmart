@@ -76,21 +76,21 @@ func NewRouter() *gin.Engine {
 	db := NewConnection()
 
 	userService := services.NewUserService()
-	roleService := services.NewRoleService()
 	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
 	reviewService := services.NewReviewService()
 	categoryService := services.NewCategoryService()
 	bikeService := services.NewBikeService()
+	cartItemService := services.NewCartItemService()
 
 	// ======================== USER =======================
 
-	userController := controllers.NewUserController(userService, profileService, transactionService)
-	roleController := controllers.NewRoleController(roleService)
+	userController := controllers.NewUserController(userService, profileService, transactionService, cartItemService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
 	categoryController := controllers.NewCategoryController(categoryService)
 	bikeController := controllers.NewBikeController(bikeService)
+	cartItemController := controllers.NewCartController(*cartItemService)
 
 	r := gin.Default()
 
@@ -132,6 +132,7 @@ func NewRouter() *gin.Engine {
 
 	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
 	userRouter.GET("/:id/transactions", userController.FindUserTransaction)
+	userRouter.GET("/:id/carts", userController.FindCartByUserID)
 
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
@@ -172,8 +173,12 @@ func NewRouter() *gin.Engine {
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
 
-	// Register routes
-	r.PUT("/roles/update", roleController.UpdateRoleByUserID)
+	// ======================== CART ITEM ROUTE ======================
+	cartRouter := apiRouter.Group("/cart-items")
+
+	cartRouter.POST("", cartItemController.Create)
+	cartRouter.PATCH("", cartItemController.Update)
+	cartRouter.DELETE("", cartItemController.Delete)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
