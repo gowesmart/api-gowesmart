@@ -4,12 +4,12 @@ import "time"
 
 type TransactionResponse struct {
 	ID         int             `json:"id"`
-	TotalPrice int             `json:"totalPrice"`
-	UserID     int             `json:"userId"`
+	TotalPrice int             `json:"total_price"`
+	UserID     int             `json:"user_id"`
 	Status     string          `json:"status"`
 	Orders     []OrderResponse `json:"orders"`
-	CreatedAt  time.Time       `json:"autoCreateTime"`
-	UpdatedAt  time.Time       `json:"autoUpdateTime"`
+	CreatedAt  time.Time       `json:"created_at"`
+	UpdatedAt  time.Time       `json:"upodated_at"`
 }
 
 type UserTransactionResponse struct {

@@ -67,7 +67,6 @@ func (t TransactionController) GetById(c *gin.Context) {
 // @Produce json
 // @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
 // @Security BearerToken
-// @Param userId path int true "User ID"
 // @Param payload body []request.TransactionCreate true "Transaction payload"
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
@@ -93,6 +92,8 @@ func (t TransactionController) Create(c *gin.Context) {
 // @Tags Transactions
 // @Accept json
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Param id path int true "Transaction ID"
 // @Param payload body []request.TransactionUpdate true "Transaction update payload"
 // @Success 200 {object} web.WebSuccess[string]
@@ -100,7 +101,10 @@ func (t TransactionController) Create(c *gin.Context) {
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions/{id} [patch]
 func (t TransactionController) Update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	claims, err := utils.ExtractTokenClaims(c)
+	utils.PanicIfError(err)
+
+	transactionID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
 	}
@@ -109,7 +113,7 @@ func (t TransactionController) Update(c *gin.Context) {
 	err = c.ShouldBindJSON(&payload)
 	utils.PanicIfError(err)
 
-	err = t.service.Update(c, payload, id)
+	err = t.service.Update(c, payload, transactionID, int(claims.UserID))
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "data successfully updated", nil)
@@ -120,15 +124,23 @@ func (t TransactionController) Update(c *gin.Context) {
 // @Description Delete a transaction
 // @Tags Transactions
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Param id path int true "Transaction ID"
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions/{id} [delete]
 func (t TransactionController) Delete(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	claims, err := utils.ExtractTokenClaims(c)
+	utils.PanicIfError(err)
 
-	err := t.service.Delete(c, id)
+	transactionID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
+
+	err = t.service.Delete(c, transactionID, int(claims.UserID))
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "data successfully deleted", nil)
@@ -139,15 +151,23 @@ func (t TransactionController) Delete(c *gin.Context) {
 // @Description Pay for a transaction
 // @Tags Transactions
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Param id path int true "Transaction ID"
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions/payment/{id} [patch]
 func (t TransactionController) Pay(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	claims, err := utils.ExtractTokenClaims(c)
+	utils.PanicIfError(err)
 
-	err := t.service.Pay(c, id)
+	transactionID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
+
+	err = t.service.Pay(c, transactionID, int(claims.UserID))
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "payment success", nil)
