@@ -1,4 +1,9 @@
 definitions:
+  controllers.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
   request.CartItemCreateRequest:
     properties:
       bike_id:
@@ -226,6 +231,16 @@ definitions:
     - comment
     - rating
     type: object
+  request.UpdateRoleRequest:
+    properties:
+      role:
+        type: integer
+      user_id:
+        type: integer
+    required:
+    - role
+    - user_id
+    type: object
   response.BikeResponse:
     properties:
       brand:
@@ -407,6 +422,15 @@ definitions:
         type: integer
       updated_at:
         type: string
+      user_id:
+        type: integer
+    type: object
+  response.RoleResponse:
+    properties:
+      id:
+        type: integer
+      role:
+        type: integer
       user_id:
         type: integer
     type: object
@@ -1774,4 +1798,39 @@ paths:
       summary: Find user profile.
       tags:
       - Users
+  /roles/update:
+    put:
+      consumes:
+      - application/json
+      description: Update the role for a user based on user ID and role ID. Role 1
+        is for admin and role 2 is for user.
+      parameters:
+      - description: Update Role Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UpdateRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RoleResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.ErrorResponse'
+      summary: Update role for a specific user by ID
+      tags:
+      - Roles
 swagger: "2.0"

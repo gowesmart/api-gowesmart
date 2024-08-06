@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/gowesmart/api-gowesmart/model/web"
@@ -38,7 +37,7 @@ func (ctrl CartController) Create(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	utils.PanicIfError(err)
 
-	claims, err:= utils.ExtractTokenClaims(c)
+	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
 	res, err := ctrl.service.Create(c, req, claims.UserID)
@@ -65,7 +64,7 @@ func (ctrl CartController) Update(c *gin.Context) {
 	err := c.ShouldBindJSON(&req)
 	utils.PanicIfError(err)
 
-	claims, err:= utils.ExtractTokenClaims(c)
+	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
 	res, err := ctrl.service.Update(c, req, claims.UserID)

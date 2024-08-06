@@ -26,31 +26,31 @@ func (s CartItemService) GetByUserID(c *gin.Context, userID int) (*response.Cart
 		return nil, err
 	}
 
-  var cartItemResponse []response.CartItemResponse
+	var cartItemResponse []response.CartItemResponse
 
 	for _, val := range cart.CartItem {
 		totalPrice := float64(val.Quantity) * float64(val.Bike.Price)
 		cartItemResponse = append(cartItemResponse, response.CartItemResponse{
-			ID: val.ID,
-			BikeID: val.BikeID,
-			CartID: val.CartID,
-			Quantity: val.Quantity,
-			Price: totalPrice,
+			ID:        val.ID,
+			BikeID:    val.BikeID,
+			CartID:    val.CartID,
+			Quantity:  val.Quantity,
+			Price:     totalPrice,
 			CreatedAt: val.CreatedAt,
 			UpdatedAt: val.UpdatedAt,
 		})
 	}
 
 	return &response.CartResponse{
-		ID: cart.ID,
-		UserID: cart.UserID,
+		ID:        cart.ID,
+		UserID:    cart.UserID,
 		CartItems: cartItemResponse,
 		CreatedAt: cart.CreatedAt,
 		UpdatedAt: cart.UpdatedAt,
 	}, nil
 }
 
-func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateRequest, userID uint) (*response.CartItemResponse,error) {
+func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateRequest, userID uint) (*response.CartItemResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var cart entity.Cart
@@ -63,11 +63,11 @@ func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateReques
 		}
 
 		cartItem = entity.CartItem{
-			CartID: cart.ID,
-			BikeID: req.BikeID,
+			CartID:   cart.ID,
+			BikeID:   req.BikeID,
 			Quantity: req.Quantity,
 		}
-	
+
 		if err := tx.Create(&cartItem).Error; err != nil {
 			return err
 		}
@@ -77,10 +77,10 @@ func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateReques
 	utils.PanicIfError(err)
 
 	return &response.CartItemResponse{
-		ID: cartItem.ID,
-		CartID: cartItem.CartID,
-		BikeID: cartItem.BikeID,
-		Quantity: cartItem.Quantity,
+		ID:        cartItem.ID,
+		CartID:    cartItem.CartID,
+		BikeID:    cartItem.BikeID,
+		Quantity:  cartItem.Quantity,
 		CreatedAt: cartItem.CreatedAt,
 		UpdatedAt: cartItem.UpdatedAt,
 	}, nil
@@ -90,8 +90,8 @@ func (s CartItemService) Update(c *gin.Context, req request.CartItemUpdateReques
 
 	cartItem := entity.CartItem{
 		ID: req.ID,
-		CartID: req.CartID,
-		BikeID: req.BikeID,
+		// CartID: req.CartID,
+		BikeID:   req.BikeID,
 		Quantity: req.Quantity,
 	}
 
