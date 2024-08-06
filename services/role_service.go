@@ -1,9 +1,6 @@
 package services
 
 import (
-	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
@@ -17,15 +14,6 @@ type RoleService struct{}
 
 func NewRoleService() *RoleService {
 	return &RoleService{}
-}
-
-func validateRole(c *gin.Context, role uint) error {
-	if role != 1 && role != 2 {
-		err := errors.New("role must be 1 (admin) or 2 (user)")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
-	}
-	return nil
 }
 
 func (service *RoleService) UpdateRoleByUserID(c *gin.Context, roleReq *request.UpdateRoleRequest) (*response.RoleResponse, error) {
