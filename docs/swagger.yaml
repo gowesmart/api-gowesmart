@@ -18,17 +18,34 @@ definitions:
     properties:
       bike_id:
         type: integer
+<<<<<<< HEAD
     required:
     - bike_id
+=======
+      cart_id:
+        type: integer
+    required:
+    - bike_id
+    - cart_id
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     type: object
   request.CartItemUpdateRequest:
     properties:
       bike_id:
         type: integer
+<<<<<<< HEAD
+=======
+      id:
+        type: integer
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
       quantity:
         type: integer
     required:
     - bike_id
+<<<<<<< HEAD
+=======
+    - id
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     - quantity
     type: object
   request.CreateBikeRequest:
@@ -1106,17 +1123,24 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
+<<<<<<< HEAD
   /api/carts:
+=======
+  /api/cart-items:
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     delete:
       consumes:
       - application/json
       description: Delete a cart
       parameters:
+<<<<<<< HEAD
       - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
         in: header
         name: Authorization
         required: true
         type: string
+=======
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
       - description: Cart Update
         in: body
         name: cart
@@ -1140,11 +1164,17 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+<<<<<<< HEAD
       security:
       - BearerToken: []
       summary: Delete a cart
       tags:
       - Carts
+=======
+      summary: Delete a cart
+      tags:
+      - CartItems
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     patch:
       consumes:
       - application/json
@@ -1180,7 +1210,11 @@ paths:
       - BearerToken: []
       summary: Update a cart
       tags:
+<<<<<<< HEAD
       - Carts
+=======
+      - CartItems
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     post:
       consumes:
       - application/json
@@ -1216,7 +1250,11 @@ paths:
       - BearerToken: []
       summary: Create a new cart item
       tags:
+<<<<<<< HEAD
       - Carts
+=======
+      - CartItems
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
   /api/categories:
     get:
       description: Get all categories
@@ -1693,6 +1731,63 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
+<<<<<<< HEAD
+=======
+  /api/users/{id}/carts:
+    get:
+      description: Find a user carts by username.
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Find user carts.
+      tags:
+      - Users
+  /api/users/{id}/transactions:
+    get:
+      description: Find a user transactions by username.
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Find user transactions.
+      tags:
+      - Users
+>>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
   /api/users/current:
     get:
       description: Get current user.
