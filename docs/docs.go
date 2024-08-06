@@ -418,45 +418,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/carts": {
-            "get": {
-                "description": "Get all carts",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Get all carts",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/response.CartResponse"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebBadRequestError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            },
+        "/api/cart-items": {
             "post": {
-                "description": "Create a new cart",
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Create a new cart item",
                 "consumes": [
                     "application/json"
                 ],
@@ -464,17 +433,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Cart"
+                    "CartItems"
                 ],
-                "summary": "Create a new cart",
+                "summary": "Create a new cart item",
                 "parameters": [
                     {
-                        "description": "Cart Create",
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Cart Item Create",
                         "name": "cart",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.CartCreateRequest"
+                            "$ref": "#/definitions/request.CartItemCreateRequest"
                         }
                     }
                 ],
@@ -482,51 +458,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/response.CartResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebBadRequestError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/carts/{id}": {
-            "get": {
-                "description": "Get cart by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Cart"
-                ],
-                "summary": "Get cart by ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/response.CartResponse"
+                            "$ref": "#/definitions/web.WebSuccess-response_CartResponse"
                         }
                     },
                     "400": {
@@ -552,19 +484,27 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Cart"
+                    "CartItems"
                 ],
                 "summary": "Delete a cart",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "Cart Update",
+                        "name": "cart",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.CartItemDeleteRequest"
+                        }
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-string"
+                        }
+                    },
                     "204": {
                         "description": "No Content"
                     },
@@ -583,6 +523,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update a cart",
                 "consumes": [
                     "application/json"
@@ -591,24 +536,24 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Cart"
+                    "CartItems"
                 ],
                 "summary": "Update a cart",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Cart ID",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     },
                     {
-                        "description": "Cart Update",
+                        "description": "Cart Item Update",
                         "name": "cart",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/request.CartUpdateRequest"
+                            "$ref": "#/definitions/request.CartItemUpdateRequest"
                         }
                     }
                 ],
@@ -616,7 +561,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.CartResponse"
+                            "$ref": "#/definitions/web.WebSuccess-response_CartResponse"
                         }
                     },
                     "400": {
@@ -1471,6 +1416,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/{id}/carts": {
+            "get": {
+                "description": "Find a user carts by username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Find user carts.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_UserTransactionResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/{id}/transactions": {
             "get": {
                 "description": "Find a user transactions by username.",
@@ -1514,28 +1500,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "request.CartCreateRequest": {
+        "request.CartItemCreateRequest": {
             "type": "object",
             "required": [
-                "userId"
+                "bike_id",
+                "quantity"
             ],
             "properties": {
-                "userId": {
+                "bike_id": {
+                    "type": "integer"
+                },
+                "quantity": {
                     "type": "integer"
                 }
             }
         },
-        "request.CartUpdateRequest": {
+        "request.CartItemDeleteRequest": {
             "type": "object",
             "required": [
-                "id",
-                "userId"
+                "bike_id",
+                "cart_id"
             ],
             "properties": {
+                "bike_id": {
+                    "type": "integer"
+                },
+                "cart_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.CartItemUpdateRequest": {
+            "type": "object",
+            "required": [
+                "bike_id",
+                "id",
+                "quantity"
+            ],
+            "properties": {
+                "bike_id": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
-                "userId": {
+                "quantity": {
                     "type": "integer"
                 }
             }
@@ -1867,6 +1876,9 @@ const docTemplate = `{
                 "cart_id": {
                     "type": "integer"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1875,6 +1887,9 @@ const docTemplate = `{
                 },
                 "quantity": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -2317,6 +2332,37 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.BikeResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_CartResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.CartResponse"
                         }
                     ],
                     "x-order": "2"

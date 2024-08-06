@@ -16,13 +16,15 @@ type UserController struct {
 	userService        *services.UserService
 	profileService     *services.ProfileService
 	transactionService *services.TransactionService
+	cartItemService *services.CartItemService
 }
 
-func NewUserController(userService *services.UserService, profileService *services.ProfileService, transactionService *services.TransactionService) *UserController {
+func NewUserController(userService *services.UserService, profileService *services.ProfileService, transactionService *services.TransactionService, cartItemService *services.CartItemService) *UserController {
 	return &UserController{
 		userService,
 		profileService,
 		transactionService,
+		cartItemService,
 	}
 }
 
@@ -199,6 +201,26 @@ func (controller *UserController) FindUserTransaction(c *gin.Context) {
 	utils.PanicIfError(err)
 
 	res, err := controller.transactionService.GetTransactionByUserID(c, userID)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// Get user carts godoc
+// @Summary		Find user carts.
+// @Description	Find a user carts by username.
+// @Tags			Users
+// @Param			id	path	int	true	"user ID"
+// @Produce		json
+// @Success		200	{object}	web.WebSuccess[response.UserTransactionResponse]
+// @Failure		404	{object}	web.WebNotFoundError
+// @Failure		500	{object}	web.WebInternalServerError
+// @Router			/api/users/{id}/carts [get]
+func (controller *UserController) FindCartByUserID(c *gin.Context){
+	userID, err := strconv.Atoi(c.Param("id"))
+	utils.PanicIfError(err)
+
+	res, err := controller.cartItemService.GetByUserID(c, userID)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)

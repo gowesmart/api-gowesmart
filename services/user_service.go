@@ -46,6 +46,13 @@ func (service *UserService) Register(c *gin.Context, userReq *request.RegisterRe
 			return err
 		}
 
+		err = tx.Create(&entity.Cart{
+			UserID: newUser.ID,
+		}).Error
+		if err != nil {
+			return err
+		}
+
 		err = tx.Model(&entity.User{}).
 			Preload("Role").
 			Where("id = ?", newUser.ID).Take(&newUser).Error
