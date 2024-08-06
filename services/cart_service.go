@@ -47,7 +47,7 @@ func (s CartService) Create(c *gin.Context, req request.CartCreateRequest) (resp
 	db, _ := utils.GetDBAndLogger(c)
 
 	cart := entity.Cart{
-		UserID: req.UserID,
+		UserID: uint(req.UserID),
 	}
 
 	if err := db.Create(&cart).Error; err != nil {
@@ -65,7 +65,7 @@ func (s CartService) Update(c *gin.Context, cartId int, req request.CartUpdateRe
 		return response.CartResponse{}, err
 	}
 
-	cart.UserID = req.UserID
+	cart.UserID = uint(req.UserID)
 
 	if err := db.Save(&cart).Error; err != nil {
 		return response.CartResponse{}, err
@@ -88,16 +88,16 @@ func toCartResponse(cart entity.Cart) response.CartResponse {
 	var cartItems []response.CartItemResponse
 	for _, item := range cart.CartItems {
 		cartItems = append(cartItems, response.CartItemResponse{
-			ID:       item.ID,
-			BikeID:   item.BikeID,
+			ID:       int(item.ID),
+			BikeID:   int(item.BikeID),
 			Quantity: item.Quantity,
 			Price:    item.Price,
 		})
 	}
 
 	return response.CartResponse{
-		ID:        cart.ID,
-		UserID:    cart.UserID,
+		ID:        int(cart.ID),
+		UserID:    int(cart.UserID),
 		CartItems: cartItems,
 		CreatedAt: cart.CreatedAt,
 		UpdatedAt: cart.UpdatedAt,

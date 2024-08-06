@@ -1,4 +1,21 @@
 definitions:
+  request.CartCreateRequest:
+    properties:
+      userId:
+        type: integer
+    required:
+    - userId
+    type: object
+  request.CartUpdateRequest:
+    properties:
+      id:
+        type: integer
+      userId:
+        type: integer
+    required:
+    - id
+    - userId
+    type: object
   request.CreateBikeRequest:
     properties:
       brand:
@@ -218,6 +235,34 @@ definitions:
       updated_at:
         type: string
       year:
+        type: integer
+    type: object
+  response.CartItemResponse:
+    properties:
+      bike_id:
+        type: integer
+      cart_id:
+        type: integer
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+    type: object
+  response.CartResponse:
+    properties:
+      cart_items:
+        items:
+          $ref: '#/definitions/response.CartItemResponse'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
         type: integer
     type: object
   response.CategoryResponse:
@@ -981,6 +1026,149 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
+  /api/carts:
+    get:
+      consumes:
+      - application/json
+      description: Get all carts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.CartResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get all carts
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Create a new cart
+      parameters:
+      - description: Cart Create
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CartCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Create a new cart
+      tags:
+      - Cart
+  /api/carts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a cart
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Delete a cart
+      tags:
+      - Cart
+    get:
+      consumes:
+      - application/json
+      description: Get cart by ID
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Get cart by ID
+      tags:
+      - Cart
+    patch:
+      consumes:
+      - application/json
+      description: Update a cart
+      parameters:
+      - description: Cart ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cart Update
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CartUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Update a cart
+      tags:
+      - Cart
   /api/categories:
     get:
       description: Get all categories
