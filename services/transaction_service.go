@@ -50,7 +50,7 @@ func (t TransactionService) GetById(c *gin.Context, transactionId int) (response
 	return result, nil
 }
 
-func (t TransactionService) Create(c *gin.Context, userId int, payloads []request.TransactionCreate) error {
+func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userId int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
@@ -86,7 +86,7 @@ func (t TransactionService) Create(c *gin.Context, userId int, payloads []reques
 	return nil
 }
 
-func (t TransactionService) Update(c *gin.Context, transactionId int, payloads []request.TransactionUpdate) error {
+func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionId int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
@@ -160,7 +160,7 @@ func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
 	return nil
 }
 
-func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId int) (*response.UserTransactionResponse, error) {
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId uint) (*response.UserTransactionResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var user entity.User

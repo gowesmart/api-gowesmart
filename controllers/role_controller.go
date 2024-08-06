@@ -1,10 +1,14 @@
 package controllers
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/gowesmart/api-gowesmart/model/web/request"
-	"github.com/gowesmart/api-gowesmart/services"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/gowesmart/api-gowesmart/model/web"
+	"github.com/gowesmart/api-gowesmart/model/web/request"
+	_ "github.com/gowesmart/api-gowesmart/model/web/response"
+	"github.com/gowesmart/api-gowesmart/services"
+	"github.com/gowesmart/api-gowesmart/utils"
 )
 
 // RoleController handles role-related requests
@@ -23,29 +27,23 @@ func NewRoleController(roleService *services.RoleService) *RoleController {
 // @Tags Roles
 // @Accept json
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Param request body request.UpdateRoleRequest true "Update Role Request"
-// @Success 200 {object} response.RoleResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 404 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /roles/update [put]
+// @Success 200 {object} web.WebSuccess[response.RoleResponse]
+// @Failure 400 {object} web.WebBadRequestError
+// @Failure 404 {object} web.WebNotFoundError
+// @Failure 500 {object} web.WebInternalServerError
+// @Router /roles/update [patch]
 func (controller *RoleController) UpdateRoleByUserID(c *gin.Context) {
+	utils.UserRoleMustAdmin(c)
+
 	var roleReq request.UpdateRoleRequest
-	if err := c.ShouldBindJSON(&roleReq); err != nil {
-		c.JSON(http.StatusBadRequest, ErrorResponse{Error: err.Error()})
-		return
-	}
+	err := c.ShouldBindJSON(&roleReq)
+	utils.PanicIfError(err)
 
 	res, err := controller.roleService.UpdateRoleByUserID(c, &roleReq)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
-		return
-	}
+	utils.PanicIfError(err)
 
 	c.JSON(http.StatusOK, res)
-}
-
-// ErrorResponse defines the structure for error responses
-type ErrorResponse struct {
-	Error string `json:"error"`
 }

@@ -76,6 +76,7 @@ func NewRouter() *gin.Engine {
 	db := NewConnection()
 
 	userService := services.NewUserService()
+	roleService := services.NewRoleService()
 	profileService := services.NewProfileService()
 	transactionService := services.NewTransactionService()
 	reviewService := services.NewReviewService()
@@ -86,6 +87,7 @@ func NewRouter() *gin.Engine {
 	// ======================== USER =======================
 
 	userController := controllers.NewUserController(userService, profileService, transactionService, cartItemService)
+	roleController := controllers.NewRoleController(roleService)
 	transactionController := controllers.NewTransactionController(*transactionService)
 	reviewController := controllers.NewReviewController(reviewService)
 	categoryController := controllers.NewCategoryController(categoryService)
@@ -131,12 +133,12 @@ func NewRouter() *gin.Engine {
 	userRouter := apiRouter.Group("/users")
 
 	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
-	userRouter.GET("/:id/transactions", userController.FindUserTransaction)
-	userRouter.GET("/:id/carts", userController.FindCartByUserID)
 
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
 	userRouter.GET("/current", userController.GetCurrentUser)
+	userRouter.GET("/current/transactions", userController.FindUserTransaction)
+	userRouter.GET("/current/carts", userController.FindCart)
 	userRouter.PATCH("/profile", userController.UpdateUserProfile)
 
 	// ======================== TRANSACTION ROUTE ======================
@@ -152,7 +154,7 @@ func NewRouter() *gin.Engine {
 	// ======================== Review ROUTE ======================
 	reviewRouter := apiRouter.Group("/reviews")
 	reviewRouter.POST("/", reviewController.CreateReview)
-	reviewRouter.PUT("/:id", reviewController.UpdateReview)
+	reviewRouter.PATCH("/:id", reviewController.UpdateReview)
 	reviewRouter.DELETE("/:id", reviewController.DeleteReview)
 	reviewRouter.GET("/", reviewController.GetAllReviews)
 	reviewRouter.GET("/:id", reviewController.GetReviewByID)
@@ -160,7 +162,7 @@ func NewRouter() *gin.Engine {
 	// ======================== Category ROUTE ======================
 	categoryRouter := apiRouter.Group("/categories")
 	categoryRouter.POST("/", categoryController.CreateCategory)
-	categoryRouter.PUT("/:id", categoryController.UpdateCategory)
+	categoryRouter.PATCH("/:id", categoryController.UpdateCategory)
 	categoryRouter.DELETE("/:id", categoryController.DeleteCategory)
 	categoryRouter.GET("/", categoryController.GetAllCategories)
 	categoryRouter.GET("/:id", categoryController.GetCategoryByID)
@@ -168,17 +170,20 @@ func NewRouter() *gin.Engine {
 	// ======================== Bike ROUTE ======================
 	bikeRouter := apiRouter.Group("/bikes")
 	bikeRouter.POST("/", bikeController.CreateBike)
-	bikeRouter.PUT("/:id", bikeController.UpdateBike)
+	bikeRouter.PATCH("/:id", bikeController.UpdateBike)
 	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
 
 	// ======================== CART ITEM ROUTE ======================
-	cartRouter := apiRouter.Group("/cart-items")
+	cartRouter := apiRouter.Group("/carts")
 
 	cartRouter.POST("", cartItemController.Create)
 	cartRouter.PATCH("", cartItemController.Update)
 	cartRouter.DELETE("", cartItemController.Delete)
+
+	// Register routes
+	r.PATCH("/roles/update", roleController.UpdateRoleByUserID)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
