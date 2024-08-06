@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gowesmart/api-gowesmart/exceptions"
 	_ "github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
@@ -47,7 +48,10 @@ func (t TransactionController) GetAll(c *gin.Context) {
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions/{id} [get]
 func (t TransactionController) GetById(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
 
 	res, err := t.service.GetById(c, id)
 	utils.PanicIfError(err)
@@ -61,20 +65,23 @@ func (t TransactionController) GetById(c *gin.Context) {
 // @Tags Transactions
 // @Accept json
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
 // @Param userId path int true "User ID"
 // @Param payload body []request.TransactionCreate true "Transaction payload"
 // @Success 200 {object} web.WebSuccess[string]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
-// @Router /api/transactions/{userId} [post]
+// @Router /api/transactions [post]
 func (t TransactionController) Create(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("userId"))
-
-	var payload []request.TransactionCreate
-	err := c.ShouldBindJSON(&payload)
+	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
-	err = t.service.Create(c, id, payload)
+	var payload []request.TransactionCreate
+	err = c.ShouldBindJSON(&payload)
+	utils.PanicIfError(err)
+
+	err = t.service.Create(c, payload, int(claims.UserID))
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "data successfully created", nil)
@@ -93,13 +100,16 @@ func (t TransactionController) Create(c *gin.Context) {
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions/{id} [patch]
 func (t TransactionController) Update(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
 
 	var payload []request.TransactionUpdate
-	err := c.ShouldBindJSON(&payload)
+	err = c.ShouldBindJSON(&payload)
 	utils.PanicIfError(err)
 
-	err = t.service.Update(c, id, payload)
+	err = t.service.Update(c, payload, id)
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, "data successfully updated", nil)

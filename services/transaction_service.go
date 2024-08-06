@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"net/http"
 	"sync"
 
@@ -50,7 +49,7 @@ func (t TransactionService) GetById(c *gin.Context, transactionId int) (response
 	return result, nil
 }
 
-func (t TransactionService) Create(c *gin.Context, userId int, payloads []request.TransactionCreate) error {
+func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userId int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
@@ -86,7 +85,7 @@ func (t TransactionService) Create(c *gin.Context, userId int, payloads []reques
 	return nil
 }
 
-func (t TransactionService) Update(c *gin.Context, transactionId int, payloads []request.TransactionUpdate) error {
+func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionId int) error {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
@@ -98,7 +97,7 @@ func (t TransactionService) Update(c *gin.Context, transactionId int, payloads [
 		}
 
 		if transaction.Status != "pending" {
-			return errors.New("invalid transaction")
+			return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
 		}
 
 		wg.Add(len(payloads))
@@ -149,7 +148,7 @@ func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
 	}
 
 	if transaction.Status != "pending" {
-		return errors.New("invalid transaction")
+		return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
 	}
 
 	transaction.Status = "paid"
@@ -169,7 +168,7 @@ func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId uint) 
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, exceptions.NewCustomError(http.StatusNotFound, "user not found")
+			return nil, exceptions.NewCustomError(http.StatusNotFound, "User not found")
 		}
 		return nil, err
 	}

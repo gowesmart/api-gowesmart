@@ -1,9 +1,4 @@
 definitions:
-  controllers.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
   request.CartItemCreateRequest:
     properties:
       bike_id:
@@ -18,34 +13,17 @@ definitions:
     properties:
       bike_id:
         type: integer
-<<<<<<< HEAD
     required:
     - bike_id
-=======
-      cart_id:
-        type: integer
-    required:
-    - bike_id
-    - cart_id
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     type: object
   request.CartItemUpdateRequest:
     properties:
       bike_id:
         type: integer
-<<<<<<< HEAD
-=======
-      id:
-        type: integer
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
       quantity:
         type: integer
     required:
     - bike_id
-<<<<<<< HEAD
-=======
-    - id
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     - quantity
     type: object
   request.CreateBikeRequest:
@@ -247,6 +225,8 @@ definitions:
   request.UpdateRoleRequest:
     properties:
       role:
+        maximum: 2
+        minimum: 1
         type: integer
       user_id:
         type: integer
@@ -770,6 +750,25 @@ definitions:
         - $ref: '#/definitions/response.ReviewResponse'
         x-order: "2"
     type: object
+  web.WebSuccess-response_RoleResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.RoleResponse'
+        x-order: "2"
+    type: object
   web.WebSuccess-response_TransactionResponse:
     properties:
       code:
@@ -1123,24 +1122,17 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
-<<<<<<< HEAD
   /api/carts:
-=======
-  /api/cart-items:
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     delete:
       consumes:
       - application/json
       description: Delete a cart
       parameters:
-<<<<<<< HEAD
       - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
         in: header
         name: Authorization
         required: true
         type: string
-=======
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
       - description: Cart Update
         in: body
         name: cart
@@ -1164,17 +1156,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
-<<<<<<< HEAD
       security:
       - BearerToken: []
       summary: Delete a cart
       tags:
       - Carts
-=======
-      summary: Delete a cart
-      tags:
-      - CartItems
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     patch:
       consumes:
       - application/json
@@ -1210,11 +1196,7 @@ paths:
       - BearerToken: []
       summary: Update a cart
       tags:
-<<<<<<< HEAD
       - Carts
-=======
-      - CartItems
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
     post:
       consumes:
       - application/json
@@ -1250,11 +1232,7 @@ paths:
       - BearerToken: []
       summary: Create a new cart item
       tags:
-<<<<<<< HEAD
       - Carts
-=======
-      - CartItems
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
   /api/categories:
     get:
       description: Get all categories
@@ -1416,6 +1394,12 @@ paths:
   /api/reviews:
     get:
       description: Get all reviews
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1427,6 +1411,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Get all reviews
       tags:
       - Reviews
@@ -1470,6 +1456,11 @@ paths:
     delete:
       description: Delete a review by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1490,12 +1481,19 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a review
       tags:
       - Reviews
     get:
       description: Get a review by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1516,6 +1514,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Get a review by ID
       tags:
       - Reviews
@@ -1524,6 +1524,11 @@ paths:
       - application/json
       description: Update an existing review
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1554,6 +1559,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update a review
       tags:
       - Reviews
@@ -1576,6 +1583,49 @@ paths:
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
       summary: Get all transaction.
+      tags:
+      - Transactions
+    post:
+      consumes:
+      - application/json
+      description: Create a new transaction
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Transaction payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/request.TransactionCreate'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-string'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Create a new transaction
       tags:
       - Transactions
   /api/transactions/{id}:
@@ -1667,43 +1717,6 @@ paths:
       summary: Update a transaction
       tags:
       - Transactions
-  /api/transactions/{userId}:
-    post:
-      consumes:
-      - application/json
-      description: Create a new transaction
-      parameters:
-      - description: User ID
-        in: path
-        name: userId
-        required: true
-        type: integer
-      - description: Transaction payload
-        in: body
-        name: payload
-        required: true
-        schema:
-          items:
-            $ref: '#/definitions/request.TransactionCreate'
-          type: array
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/web.WebSuccess-string'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/web.WebBadRequestError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebInternalServerError'
-      summary: Create a new transaction
-      tags:
-      - Transactions
   /api/transactions/payment/{id}:
     patch:
       description: Pay for a transaction
@@ -1731,63 +1744,6 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
-<<<<<<< HEAD
-=======
-  /api/users/{id}/carts:
-    get:
-      description: Find a user carts by username.
-      parameters:
-      - description: user ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/web.WebNotFoundError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebInternalServerError'
-      summary: Find user carts.
-      tags:
-      - Users
-  /api/users/{id}/transactions:
-    get:
-      description: Find a user transactions by username.
-      parameters:
-      - description: user ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/web.WebNotFoundError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebInternalServerError'
-      summary: Find user transactions.
-      tags:
-      - Users
->>>>>>> bd66378405b87781b32d7face3f2c825cf91c50f
   /api/users/current:
     get:
       description: Get current user.
@@ -1956,6 +1912,11 @@ paths:
       description: Update the role for a user based on user ID and role ID. Role 1
         is for admin and role 2 is for user.
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Update Role Request
         in: body
         name: request
@@ -1968,19 +1929,21 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.RoleResponse'
+            $ref: '#/definitions/web.WebSuccess-response_RoleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebBadRequestError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebNotFoundError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update role for a specific user by ID
       tags:
       - Roles

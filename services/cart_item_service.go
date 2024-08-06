@@ -60,7 +60,7 @@ func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateReques
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
 		if err != nil {
-			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
+			return exceptions.NewCustomError(http.StatusBadRequest, "User not found")
 		}
 
 		if err := tx.Where("bike_id = ? AND cart_id = ?", req.BikeID, cart.ID).First(&cartItem).Error; err != nil {
@@ -101,11 +101,11 @@ func (s CartItemService) Update(c *gin.Context, req request.CartItemUpdateReques
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
 		if err != nil {
-			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
+			return exceptions.NewCustomError(http.StatusBadRequest, "User not found")
 		}
 
 		if err := tx.Where("bike_id = ? AND cart_id = ?", req.BikeID, cart.ID).First(&cartItem).Error; err != nil {
-			return exceptions.NewCustomError(http.StatusNotFound, "cart item not found")
+			return exceptions.NewCustomError(http.StatusNotFound, "Cart item not found")
 		}
 
 		cartItem.Quantity = req.Quantity
@@ -129,7 +129,7 @@ func (s CartItemService) Delete(c *gin.Context, bikeID, userID uint) error {
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
 		if err != nil {
-			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
+			return exceptions.NewCustomError(http.StatusBadRequest, "User not found")
 		}
 
 		if err := tx.Where("bike_id = ? AND cart_id = ?", bikeID, cart.ID).Delete(&entity.CartItem{}).Error; err != nil {
