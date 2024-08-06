@@ -81,6 +81,7 @@ func NewRouter() *gin.Engine {
 	reviewService := services.NewReviewService()
 	categoryService := services.NewCategoryService()
 	bikeService := services.NewBikeService()
+	cartService := services.NewCartService()
 
 	// ======================== USER =======================
 
@@ -89,6 +90,7 @@ func NewRouter() *gin.Engine {
 	reviewController := controllers.NewReviewController(reviewService)
 	categoryController := controllers.NewCategoryController(categoryService)
 	bikeController := controllers.NewBikeController(bikeService)
+	cartController := controllers.NewCartController(*cartService)
 
 	r := gin.Default()
 
@@ -169,6 +171,15 @@ func NewRouter() *gin.Engine {
 	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
+
+	// ======================== CART ROUTE ======================
+	cartRouter := apiRouter.Group("/carts")
+
+	cartRouter.GET("", cartController.GetAll)
+	cartRouter.GET("/:id", cartController.GetById)
+	cartRouter.POST("", cartController.Create)
+	cartRouter.PATCH("/:id", cartController.Update)
+	cartRouter.DELETE("/:id", cartController.Delete)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 
