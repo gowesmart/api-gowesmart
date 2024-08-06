@@ -1,9 +1,4 @@
 definitions:
-  controllers.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
   request.CartItemCreateRequest:
     properties:
       bike_id:
@@ -230,6 +225,8 @@ definitions:
   request.UpdateRoleRequest:
     properties:
       role:
+        maximum: 2
+        minimum: 1
         type: integer
       user_id:
         type: integer
@@ -751,6 +748,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.ReviewResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_RoleResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.RoleResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_TransactionResponse:
@@ -1378,6 +1394,12 @@ paths:
   /api/reviews:
     get:
       description: Get all reviews
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1389,6 +1411,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Get all reviews
       tags:
       - Reviews
@@ -1432,6 +1456,11 @@ paths:
     delete:
       description: Delete a review by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1452,12 +1481,19 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a review
       tags:
       - Reviews
     get:
       description: Get a review by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1478,6 +1514,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Get a review by ID
       tags:
       - Reviews
@@ -1486,6 +1524,11 @@ paths:
       - application/json
       description: Update an existing review
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review ID
         in: path
         name: id
@@ -1516,6 +1559,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update a review
       tags:
       - Reviews
@@ -1861,6 +1906,11 @@ paths:
       description: Update the role for a user based on user ID and role ID. Role 1
         is for admin and role 2 is for user.
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Update Role Request
         in: body
         name: request
@@ -1873,19 +1923,21 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/response.RoleResponse'
+            $ref: '#/definitions/web.WebSuccess-response_RoleResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebBadRequestError'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebNotFoundError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/controllers.ErrorResponse'
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update role for a specific user by ID
       tags:
       - Roles

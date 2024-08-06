@@ -872,6 +872,11 @@ const docTemplate = `{
         },
         "/api/reviews": {
             "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Get all reviews",
                 "produces": [
                     "application/json"
@@ -880,6 +885,15 @@ const docTemplate = `{
                     "Reviews"
                 ],
                 "summary": "Get all reviews",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -954,6 +968,11 @@ const docTemplate = `{
         },
         "/api/reviews/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Get a review by ID",
                 "produces": [
                     "application/json"
@@ -963,6 +982,13 @@ const docTemplate = `{
                 ],
                 "summary": "Get a review by ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Review ID",
@@ -993,6 +1019,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Delete a review by ID",
                 "produces": [
                     "application/json"
@@ -1002,6 +1033,13 @@ const docTemplate = `{
                 ],
                 "summary": "Delete a review",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Review ID",
@@ -1032,6 +1070,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update an existing review",
                 "consumes": [
                     "application/json"
@@ -1044,6 +1087,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update a review",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Review ID",
@@ -1606,6 +1656,11 @@ const docTemplate = `{
         },
         "/roles/update": {
             "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update the role for a user based on user ID and role ID. Role 1 is for admin and role 2 is for user.",
                 "consumes": [
                     "application/json"
@@ -1618,6 +1673,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update role for a specific user by ID",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Update Role Request",
                         "name": "request",
@@ -1632,25 +1694,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/response.RoleResponse"
+                            "$ref": "#/definitions/web.WebSuccess-response_RoleResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/web.WebBadRequestError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/web.WebNotFoundError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/controllers.ErrorResponse"
+                            "$ref": "#/definitions/web.WebInternalServerError"
                         }
                     }
                 }
@@ -1658,14 +1720,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
         "request.CartItemCreateRequest": {
             "type": "object",
             "required": [
@@ -1993,7 +2047,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "role": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 2,
+                    "minimum": 1
                 },
                 "user_id": {
                     "type": "integer"
@@ -2768,6 +2824,37 @@ const docTemplate = `{
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.ReviewResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_RoleResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RoleResponse"
                         }
                     ],
                     "x-order": "2"

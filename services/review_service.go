@@ -50,14 +50,14 @@ func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.Cr
 	return &res, nil
 }
 
-func (service *ReviewService) UpdateReview(c *gin.Context, id uint, reviewReq *request.UpdateReviewRequest) (*response.ReviewResponse, error) {
+func (service *ReviewService) UpdateReview(c *gin.Context, reviewReq *request.UpdateReviewRequest, reviewID, userID uint) (*response.ReviewResponse, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var res response.ReviewResponse
 	var review entity.Review
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.First(&review, id).Error; err != nil {
+		if err := tx.Where("user_id = ?", reviewID).First(&review, reviewID).Error; err != nil {
 			return err
 		}
 

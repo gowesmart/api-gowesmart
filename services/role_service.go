@@ -2,6 +2,8 @@ package services
 
 import (
 	"errors"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
@@ -9,7 +11,6 @@ import (
 	"github.com/gowesmart/api-gowesmart/utils"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type RoleService struct{}
@@ -34,23 +35,15 @@ func (service *RoleService) UpdateRoleByUserID(c *gin.Context, roleReq *request.
 	var user entity.User
 	var role entity.Role
 
-	// Validate the role
-	if err := validateRole(c, roleReq.Role); err != nil {
-		return nil, nil
-	}
-
 	err := db.Transaction(func(tx *gorm.DB) error {
-		// Find user by ID
 		if err := tx.First(&user, roleReq.UserID).Error; err != nil {
 			return err
 		}
 
-		// Find role by ID
 		if err := tx.First(&role, roleReq.Role).Error; err != nil {
 			return err
 		}
 
-		// Update user's role
 		user.RoleID = role.ID
 
 		if err := tx.Save(&user).Error; err != nil {
