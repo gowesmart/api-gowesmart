@@ -183,7 +183,7 @@ func NewRouter() *gin.Engine {
 	cartRouter.DELETE("", cartItemController.Delete)
 
 	// Register routes
-	r.PUT("/roles/update", roleController.UpdateRoleByUserID)
+	r.PATCH("/roles/update", roleController.UpdateRoleByUserID)
 
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, ginSwagger.DefaultModelsExpandDepth(-1)))
 

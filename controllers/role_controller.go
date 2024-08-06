@@ -1,10 +1,11 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/services"
-	"net/http"
 )
 
 // RoleController handles role-related requests
@@ -28,7 +29,7 @@ func NewRoleController(roleService *services.RoleService) *RoleController {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /roles/update [put]
+// @Router /roles/update [patch]
 func (controller *RoleController) UpdateRoleByUserID(c *gin.Context) {
 	var roleReq request.UpdateRoleRequest
 	if err := c.ShouldBindJSON(&roleReq); err != nil {

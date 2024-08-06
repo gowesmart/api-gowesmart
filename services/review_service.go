@@ -1,9 +1,6 @@
 package services
 
 import (
-	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/entity"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
@@ -19,30 +16,16 @@ func NewReviewService() *ReviewService {
 	return &ReviewService{}
 }
 
-func validateRating(c *gin.Context, rating int) error {
-	if rating < 1 || rating > 5 {
-		err := errors.New("rating must be between 1 and 5")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return err
-	}
-	return nil
-}
-
-func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.CreateReviewRequest) (*response.ReviewResponse, error) {
+func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.CreateReviewRequest, userID uint) (*response.ReviewResponse, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var res response.ReviewResponse
-
-	// Validate the rating
-	if err := validateRating(c, reviewReq.Rating); err != nil {
-		return nil, nil
-	}
 
 	review := entity.Review{
 		Comment: reviewReq.Comment,
 		Rating:  reviewReq.Rating,
 		BikeID:  reviewReq.BikeID,
-		UserID:  reviewReq.UserID,
+		UserID:  userID,
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -72,11 +55,6 @@ func (service *ReviewService) UpdateReview(c *gin.Context, id uint, reviewReq *r
 
 	var res response.ReviewResponse
 	var review entity.Review
-
-	// Validate the rating
-	if err := validateRating(c, reviewReq.Rating); err != nil {
-		return nil, nil // Response already sent, return nil
-	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.First(&review, id).Error; err != nil {

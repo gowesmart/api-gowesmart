@@ -74,14 +74,13 @@ definitions:
       comment:
         type: string
       rating:
-        type: integer
-      user_id:
+        maximum: 5
+        minimum: 1
         type: integer
     required:
     - bike_id
     - comment
     - rating
-    - user_id
     type: object
   request.ForgotPasswordRequest:
     properties:
@@ -221,6 +220,8 @@ definitions:
       comment:
         type: string
       rating:
+        maximum: 5
+        minimum: 1
         type: integer
     required:
     - comment
@@ -1396,6 +1397,11 @@ paths:
       - application/json
       description: Create a new review
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Review body
         in: body
         name: review
@@ -1417,6 +1423,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Create a review
       tags:
       - Reviews
@@ -1847,7 +1855,7 @@ paths:
       tags:
       - Users
   /roles/update:
-    put:
+    patch:
       consumes:
       - application/json
       description: Update the role for a user based on user ID and role ID. Role 1

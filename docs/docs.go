@@ -896,6 +896,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Create a new review",
                 "consumes": [
                     "application/json"
@@ -908,6 +913,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create a review",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Review body",
                         "name": "review",
@@ -1593,7 +1605,7 @@ const docTemplate = `{
             }
         },
         "/roles/update": {
-            "put": {
+            "patch": {
                 "description": "Update the role for a user based on user ID and role ID. Role 1 is for admin and role 2 is for user.",
                 "consumes": [
                     "application/json"
@@ -1752,8 +1764,7 @@ const docTemplate = `{
             "required": [
                 "bike_id",
                 "comment",
-                "rating",
-                "user_id"
+                "rating"
             ],
             "properties": {
                 "bike_id": {
@@ -1763,10 +1774,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rating": {
-                    "type": "integer"
-                },
-                "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
                 }
             }
         },
@@ -1969,7 +1979,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "rating": {
-                    "type": "integer"
+                    "type": "integer",
+                    "maximum": 5,
+                    "minimum": 1
                 }
             }
         },
