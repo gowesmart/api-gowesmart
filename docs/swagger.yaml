@@ -18,23 +18,17 @@ definitions:
     properties:
       bike_id:
         type: integer
-      cart_id:
-        type: integer
     required:
     - bike_id
-    - cart_id
     type: object
   request.CartItemUpdateRequest:
     properties:
       bike_id:
         type: integer
-      id:
-        type: integer
       quantity:
         type: integer
     required:
     - bike_id
-    - id
     - quantity
     type: object
   request.CreateBikeRequest:
@@ -214,8 +208,6 @@ definitions:
         type: integer
       year:
         type: integer
-    required:
-    - image_url
     type: object
   request.UpdateCategoryRequest:
     properties:
@@ -1012,6 +1004,11 @@ paths:
     delete:
       description: Delete a bike by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Bike ID
         in: path
         name: id
@@ -1020,8 +1017,8 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/web.WebSuccess-response_BikeResponse'
         "404":
@@ -1032,6 +1029,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a bike
       tags:
       - Bikes
@@ -1106,12 +1105,17 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
-  /api/cart-items:
+  /api/carts:
     delete:
       consumes:
       - application/json
       description: Delete a cart
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Cart Update
         in: body
         name: cart
@@ -1135,9 +1139,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a cart
       tags:
-      - CartItems
+      - Carts
     patch:
       consumes:
       - application/json
@@ -1173,7 +1179,7 @@ paths:
       - BearerToken: []
       summary: Update a cart
       tags:
-      - CartItems
+      - Carts
     post:
       consumes:
       - application/json
@@ -1209,7 +1215,7 @@ paths:
       - BearerToken: []
       summary: Create a new cart item
       tags:
-      - CartItems
+      - Carts
   /api/categories:
     get:
       description: Get all categories
@@ -1679,60 +1685,6 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
-  /api/users/{id}/carts:
-    get:
-      description: Find a user carts by username.
-      parameters:
-      - description: user ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/web.WebNotFoundError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebInternalServerError'
-      summary: Find user carts.
-      tags:
-      - Users
-  /api/users/{id}/transactions:
-    get:
-      description: Find a user transactions by username.
-      parameters:
-      - description: user ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/web.WebNotFoundError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/web.WebInternalServerError'
-      summary: Find user transactions.
-      tags:
-      - Users
   /api/users/current:
     get:
       description: Get current user.
@@ -1764,6 +1716,64 @@ paths:
       security:
       - BearerToken: []
       summary: Get current user.
+      tags:
+      - Users
+  /api/users/current/carts:
+    get:
+      description: Find a user carts by username.
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CartResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Find user carts.
+      tags:
+      - Users
+  /api/users/current/transactions:
+    get:
+      description: Find a user transactions by username.
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Find user transactions.
       tags:
       - Users
   /api/users/profile:

@@ -9,6 +9,7 @@ import (
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +19,7 @@ func NewCartItemService() *CartItemService {
 	return &CartItemService{}
 }
 
-func (s CartItemService) GetByUserID(c *gin.Context, userID int) (*response.CartResponse, error) {
+func (s CartItemService) GetByUserID(c *gin.Context, userID uint) (*response.CartResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var cart entity.Cart
@@ -51,31 +52,100 @@ func (s CartItemService) GetByUserID(c *gin.Context, userID int) (*response.Cart
 }
 
 func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateRequest, userID uint) (*response.CartItemResponse, error) {
-	db, _ := utils.GetDBAndLogger(c)
+	db, logger := utils.GetDBAndLogger(c)
 
 	var cart entity.Cart
 	var cartItem entity.CartItem
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Select("id").Find(&cart, "user_id = ?", userID).Error
+		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
 		if err != nil {
 			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
 		}
 
-		cartItem = entity.CartItem{
-			CartID:   cart.ID,
-			BikeID:   req.BikeID,
-			Quantity: req.Quantity,
+		if err := tx.Where("bike_id = ? AND cart_id = ?", req.BikeID, cart.ID).First(&cartItem).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				cartItem = entity.CartItem{
+					CartID:   cart.ID,
+					BikeID:   req.BikeID,
+					Quantity: req.Quantity,
+				}
+				if err := tx.Create(&cartItem).Error; err != nil {
+					return err
+				}
+			} else {
+				return err
+			}
+		} else {
+			cartItem.Quantity += req.Quantity
+			if err := tx.Save(&cartItem).Error; err != nil {
+				return err
+			}
 		}
 
-		if err := tx.Create(&cartItem).Error; err != nil {
-			return err
-		}
+		logger.Info("success creating or updating cart item", zap.Uint("cartItemID", cartItem.ID))
 
 		return nil
 	})
 	utils.PanicIfError(err)
 
+	return s.toCartItemResponse(cartItem), nil
+}
+
+func (s CartItemService) Update(c *gin.Context, req request.CartItemUpdateRequest, userID uint) (*response.CartItemResponse, error) {
+	db, logger := utils.GetDBAndLogger(c)
+
+	var cart entity.Cart
+	var cartItem entity.CartItem
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
+		if err != nil {
+			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
+		}
+
+		if err := tx.Where("bike_id = ? AND cart_id = ?", req.BikeID, cart.ID).First(&cartItem).Error; err != nil {
+			return exceptions.NewCustomError(http.StatusNotFound, "cart item not found")
+		}
+
+		cartItem.Quantity = req.Quantity
+		if err := tx.Save(&cartItem).Error; err != nil {
+			return err
+		}
+
+		logger.Info("success updating cart item", zap.Uint("cartItemID", cartItem.ID))
+
+		return nil
+	})
+	utils.PanicIfError(err)
+
+	return s.toCartItemResponse(cartItem), nil
+}
+func (s CartItemService) Delete(c *gin.Context, bikeID, userID uint) error {
+	db, logger := utils.GetDBAndLogger(c)
+
+	var cart entity.Cart
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Select("id").Where("user_id = ?", userID).First(&cart).Error
+		if err != nil {
+			return exceptions.NewCustomError(http.StatusBadRequest, "user not found")
+		}
+
+		if err := tx.Where("bike_id = ? AND cart_id = ?", bikeID, cart.ID).Delete(&entity.CartItem{}).Error; err != nil {
+			return err
+		}
+
+		logger.Info("success deleting cart item", zap.Uint("cartID", cart.ID), zap.Uint("bikeID", bikeID))
+
+		return nil
+	})
+	utils.PanicIfError(err)
+
+	return nil
+}
+
+func (s CartItemService) toCartItemResponse(cartItem entity.CartItem) *response.CartItemResponse {
 	return &response.CartItemResponse{
 		ID:        cartItem.ID,
 		CartID:    cartItem.CartID,
@@ -83,51 +153,5 @@ func (s CartItemService) Create(c *gin.Context, req request.CartItemCreateReques
 		Quantity:  cartItem.Quantity,
 		CreatedAt: cartItem.CreatedAt,
 		UpdatedAt: cartItem.UpdatedAt,
-	}, nil
-}
-func (s CartItemService) Update(c *gin.Context, req request.CartItemUpdateRequest, userID uint) (*response.CartItemResponse, error) {
-	db, _ := utils.GetDBAndLogger(c)
-
-	cartItem := entity.CartItem{
-		ID: req.ID,
-		// CartID: req.CartID,
-		BikeID:   req.BikeID,
-		Quantity: req.Quantity,
 	}
-
-	if err := db.Save(&cartItem).Error; err != nil {
-		return nil, err
-	}
-
-	return nil, nil
 }
-
-func (s CartItemService) Delete(c *gin.Context, bikeID, cartID uint) error {
-	db, _ := utils.GetDBAndLogger(c)
-
-	if err := db.Where("bike_id = ?", bikeID).Where("cart_id = ?", cartID).Delete(&entity.CartItem{}).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// func toCartResponse(cart entity.Cart) response.CartResponse {
-// 	var cartItems []response.CartItemResponse
-// 	for _, item := range cart.CartItems {
-// 		cartItems = append(cartItems, response.CartItemResponse{
-// 			ID:       int(item.ID),
-// 			BikeID:   int(item.BikeID),
-// 			Quantity: item.Quantity,
-// 			Price:    item.Price,
-// 		})
-// 	}
-
-// 	return response.CartResponse{
-// 		ID:        int(cart.ID),
-// 		UserID:    int(cart.UserID),
-// 		CartItems: cartItems,
-// 		CreatedAt: cart.CreatedAt,
-// 		UpdatedAt: cart.UpdatedAt,
-// 	}
-// }

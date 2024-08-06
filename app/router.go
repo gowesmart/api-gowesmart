@@ -133,12 +133,12 @@ func NewRouter() *gin.Engine {
 	userRouter := apiRouter.Group("/users")
 
 	userRouter.GET("/profile/:username", userController.FindProfileByUsername)
-	userRouter.GET("/:id/transactions", userController.FindUserTransaction)
-	userRouter.GET("/:id/carts", userController.FindCartByUserID)
 
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
 	userRouter.GET("/current", userController.GetCurrentUser)
+	userRouter.GET("/current/transactions", userController.FindUserTransaction)
+	userRouter.GET("/current/carts", userController.FindCart)
 	userRouter.PATCH("/profile", userController.UpdateUserProfile)
 
 	// ======================== TRANSACTION ROUTE ======================
@@ -176,7 +176,7 @@ func NewRouter() *gin.Engine {
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)
 
 	// ======================== CART ITEM ROUTE ======================
-	cartRouter := apiRouter.Group("/cart-items")
+	cartRouter := apiRouter.Group("/carts")
 
 	cartRouter.POST("", cartItemController.Create)
 	cartRouter.PATCH("", cartItemController.Update)

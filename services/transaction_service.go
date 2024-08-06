@@ -160,7 +160,7 @@ func (t TransactionService) Pay(c *gin.Context, transactionId int) error {
 	return nil
 }
 
-func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId int) (*response.UserTransactionResponse, error) {
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, userId uint) (*response.UserTransactionResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var user entity.User

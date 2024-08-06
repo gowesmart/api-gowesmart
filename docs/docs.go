@@ -334,6 +334,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Delete a bike by ID",
                 "produces": [
                     "application/json"
@@ -344,6 +349,13 @@ const docTemplate = `{
                 "summary": "Delete a bike",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "Bike ID",
                         "name": "id",
@@ -352,8 +364,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/web.WebSuccess-response_BikeResponse"
                         }
@@ -442,7 +454,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/cart-items": {
+        "/api/carts": {
             "post": {
                 "security": [
                     {
@@ -457,7 +469,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CartItems"
+                    "Carts"
                 ],
                 "summary": "Create a new cart item",
                 "parameters": [
@@ -500,6 +512,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Delete a cart",
                 "consumes": [
                     "application/json"
@@ -508,10 +525,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CartItems"
+                    "Carts"
                 ],
                 "summary": "Delete a cart",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Cart Update",
                         "name": "cart",
@@ -560,7 +584,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "CartItems"
+                    "Carts"
                 ],
                 "summary": "Update a cart",
                 "parameters": [
@@ -1368,6 +1392,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/current/carts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Find a user carts by username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Find user carts.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_CartResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/current/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Find a user transactions by username.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Find user transactions.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_UserTransactionResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/profile": {
             "patch": {
                 "security": [
@@ -1476,88 +1592,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/users/{id}/carts": {
-            "get": {
-                "description": "Find a user carts by username.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Find user carts.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "user ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_UserTransactionResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/users/{id}/transactions": {
-            "get": {
-                "description": "Find a user transactions by username.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Users"
-                ],
-                "summary": "Find user transactions.",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "user ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_UserTransactionResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            }
-        },
         "/roles/update": {
             "put": {
                 "description": "Update the role for a user based on user ID and role ID. Role 1 is for admin and role 2 is for user.",
@@ -1638,14 +1672,10 @@ const docTemplate = `{
         "request.CartItemDeleteRequest": {
             "type": "object",
             "required": [
-                "bike_id",
-                "cart_id"
+                "bike_id"
             ],
             "properties": {
                 "bike_id": {
-                    "type": "integer"
-                },
-                "cart_id": {
                     "type": "integer"
                 }
             }
@@ -1654,14 +1684,10 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "bike_id",
-                "id",
                 "quantity"
             ],
             "properties": {
                 "bike_id": {
-                    "type": "integer"
-                },
-                "id": {
                     "type": "integer"
                 },
                 "quantity": {
@@ -1891,9 +1917,6 @@ const docTemplate = `{
         },
         "request.UpdateBikeRequest": {
             "type": "object",
-            "required": [
-                "image_url"
-            ],
             "properties": {
                 "brand": {
                     "type": "string"
