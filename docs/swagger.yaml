@@ -4,6 +4,39 @@ definitions:
       error:
         type: string
     type: object
+  request.CartItemCreateRequest:
+    properties:
+      bike_id:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - bike_id
+    - quantity
+    type: object
+  request.CartItemDeleteRequest:
+    properties:
+      bike_id:
+        type: integer
+      cart_id:
+        type: integer
+    required:
+    - bike_id
+    - cart_id
+    type: object
+  request.CartItemUpdateRequest:
+    properties:
+      bike_id:
+        type: integer
+      id:
+        type: integer
+      quantity:
+        type: integer
+    required:
+    - bike_id
+    - id
+    - quantity
+    type: object
   request.CreateBikeRequest:
     properties:
       brand:
@@ -233,6 +266,38 @@ definitions:
       updated_at:
         type: string
       year:
+        type: integer
+    type: object
+  response.CartItemResponse:
+    properties:
+      bike_id:
+        type: integer
+      cart_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  response.CartResponse:
+    properties:
+      cart_items:
+        items:
+          $ref: '#/definitions/response.CartItemResponse'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
         type: integer
     type: object
   response.CategoryResponse:
@@ -538,6 +603,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.BikeResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_CartResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.CartResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_CategoryResponse:
@@ -1005,6 +1089,110 @@ paths:
       summary: Update a bike
       tags:
       - Bikes
+  /api/cart-items:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a cart
+      parameters:
+      - description: Cart Update
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CartItemDeleteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-string'
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Delete a cart
+      tags:
+      - CartItems
+    patch:
+      consumes:
+      - application/json
+      description: Update a cart
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Cart Item Update
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CartItemUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Update a cart
+      tags:
+      - CartItems
+    post:
+      consumes:
+      - application/json
+      description: Create a new cart item
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Cart Item Create
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/request.CartItemCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/web.WebBadRequestError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Create a new cart item
+      tags:
+      - CartItems
   /api/categories:
     get:
       description: Get all categories
@@ -1453,6 +1641,33 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
+  /api/users/{id}/carts:
+    get:
+      description: Find a user carts by username.
+      parameters:
+      - description: user ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_UserTransactionResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      summary: Find user carts.
+      tags:
+      - Users
   /api/users/{id}/transactions:
     get:
       description: Find a user transactions by username.
