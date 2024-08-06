@@ -15,7 +15,7 @@ func NewConnection() *gorm.DB {
 	})
 	utils.PanicIfError(err)
 
-	err = db.AutoMigrate(&entity.User{}, &entity.Profile{}, &entity.Role{}, &entity.Review{}, &entity.Transaction{}, &entity.Order{}, &entity.Category{}, &entity.Bike{}, &entity.Cart{}, &entity.CartItem{})
+	err = db.AutoMigrate(&entity.User{}, &entity.Profile{}, &entity.Role{}, &entity.Bike{}, &entity.Review{}, &entity.Transaction{}, &entity.Order{}, &entity.Category{}, &entity.Cart{}, &entity.CartItem{})
 	utils.PanicIfError(err)
 
 	return db

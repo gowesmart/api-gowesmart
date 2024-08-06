@@ -237,6 +237,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Create a new bike",
                 "consumes": [
                     "application/json"
@@ -249,6 +254,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create a bike",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Bike body",
                         "name": "bike",
@@ -321,7 +333,46 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "description": "Delete a bike by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bikes"
+                ],
+                "summary": "Delete a bike",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Bike ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_BikeResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "Update an existing bike",
                 "consumes": [
                     "application/json"
@@ -362,45 +413,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/web.WebBadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a bike by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Bikes"
-                ],
-                "summary": "Delete a bike",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Bike ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_BikeResponse"
                         }
                     },
                     "404": {
@@ -605,6 +617,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Create a new category",
                 "consumes": [
                     "application/json"
@@ -617,6 +634,13 @@ const docTemplate = `{
                 ],
                 "summary": "Create a category",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Category body",
                         "name": "category",
@@ -689,7 +713,63 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Delete a category by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Delete a category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_CategoryResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
                 "description": "Update an existing category",
                 "consumes": [
                     "application/json"
@@ -702,6 +782,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update a category",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Category ID",
@@ -730,45 +817,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/web.WebBadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a category by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Delete a category",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Category ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_CategoryResponse"
                         }
                     },
                     "404": {
@@ -896,7 +944,46 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
+            "delete": {
+                "description": "Delete a review by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Delete a review",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Review ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_ReviewResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            },
+            "patch": {
                 "description": "Update an existing review",
                 "consumes": [
                     "application/json"
@@ -937,45 +1024,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/web.WebBadRequestError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebNotFoundError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebInternalServerError"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a review by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Reviews"
-                ],
-                "summary": "Delete a review",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Review ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_ReviewResponse"
                         }
                     },
                     "404": {
@@ -1614,6 +1662,7 @@ const docTemplate = `{
             "required": [
                 "brand",
                 "category_id",
+                "image_url",
                 "name",
                 "price",
                 "stock",
@@ -1830,6 +1879,9 @@ const docTemplate = `{
         },
         "request.UpdateBikeRequest": {
             "type": "object",
+            "required": [
+                "image_url"
+            ],
             "properties": {
                 "brand": {
                     "type": "string"

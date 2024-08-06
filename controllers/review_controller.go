@@ -59,7 +59,7 @@ func (controller *ReviewController) CreateReview(c *gin.Context) {
 //	@Failure		400		{object}	web.WebBadRequestError
 //	@Failure		404		{object}	web.WebNotFoundError
 //	@Failure		500		{object}	web.WebInternalServerError
-//	@Router			/api/reviews/{id} [put]
+//	@Router			/api/reviews/{id} [patch]
 func (controller *ReviewController) UpdateReview(c *gin.Context) {
 	var reviewReq request.UpdateReviewRequest
 

@@ -60,6 +60,7 @@ definitions:
     required:
     - brand
     - category_id
+    - image_url
     - name
     - price
     - stock
@@ -213,6 +214,8 @@ definitions:
         type: integer
       year:
         type: integer
+    required:
+    - image_url
     type: object
   request.UpdateCategoryRequest:
     properties:
@@ -974,6 +977,11 @@ paths:
       - application/json
       description: Create a new bike
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Bike body
         in: body
         name: bike
@@ -995,6 +1003,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Create a bike
       tags:
       - Bikes
@@ -1051,7 +1061,7 @@ paths:
       summary: Get a bike by ID
       tags:
       - Bikes
-    put:
+    patch:
       consumes:
       - application/json
       description: Update an existing bike
@@ -1215,6 +1225,11 @@ paths:
       - application/json
       description: Create a new category
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Category body
         in: body
         name: category
@@ -1236,6 +1251,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Create a category
       tags:
       - Categories
@@ -1243,6 +1260,11 @@ paths:
     delete:
       description: Delete a category by ID
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Category ID
         in: path
         name: id
@@ -1263,6 +1285,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Delete a category
       tags:
       - Categories
@@ -1292,11 +1316,16 @@ paths:
       summary: Get a category by ID
       tags:
       - Categories
-    put:
+    patch:
       consumes:
       - application/json
       description: Update an existing category
       parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Category ID
         in: path
         name: id
@@ -1327,6 +1356,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Update a category
       tags:
       - Categories
@@ -1429,7 +1460,7 @@ paths:
       summary: Get a review by ID
       tags:
       - Reviews
-    put:
+    patch:
       consumes:
       - application/json
       description: Update an existing review

@@ -154,7 +154,7 @@ func NewRouter() *gin.Engine {
 	// ======================== Review ROUTE ======================
 	reviewRouter := apiRouter.Group("/reviews")
 	reviewRouter.POST("/", reviewController.CreateReview)
-	reviewRouter.PUT("/:id", reviewController.UpdateReview)
+	reviewRouter.PATCH("/:id", reviewController.UpdateReview)
 	reviewRouter.DELETE("/:id", reviewController.DeleteReview)
 	reviewRouter.GET("/", reviewController.GetAllReviews)
 	reviewRouter.GET("/:id", reviewController.GetReviewByID)
@@ -162,7 +162,7 @@ func NewRouter() *gin.Engine {
 	// ======================== Category ROUTE ======================
 	categoryRouter := apiRouter.Group("/categories")
 	categoryRouter.POST("/", categoryController.CreateCategory)
-	categoryRouter.PUT("/:id", categoryController.UpdateCategory)
+	categoryRouter.PATCH("/:id", categoryController.UpdateCategory)
 	categoryRouter.DELETE("/:id", categoryController.DeleteCategory)
 	categoryRouter.GET("/", categoryController.GetAllCategories)
 	categoryRouter.GET("/:id", categoryController.GetCategoryByID)
@@ -170,7 +170,7 @@ func NewRouter() *gin.Engine {
 	// ======================== Bike ROUTE ======================
 	bikeRouter := apiRouter.Group("/bikes")
 	bikeRouter.POST("/", bikeController.CreateBike)
-	bikeRouter.PUT("/:id", bikeController.UpdateBike)
+	bikeRouter.PATCH("/:id", bikeController.UpdateBike)
 	bikeRouter.DELETE("/:id", bikeController.DeleteBike)
 	bikeRouter.GET("/", bikeController.GetAllBikes)
 	bikeRouter.GET("/:id", bikeController.GetBikeByID)

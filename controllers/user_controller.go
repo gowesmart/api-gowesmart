@@ -16,7 +16,7 @@ type UserController struct {
 	userService        *services.UserService
 	profileService     *services.ProfileService
 	transactionService *services.TransactionService
-	cartItemService *services.CartItemService
+	cartItemService    *services.CartItemService
 }
 
 func NewUserController(userService *services.UserService, profileService *services.ProfileService, transactionService *services.TransactionService, cartItemService *services.CartItemService) *UserController {
@@ -143,17 +143,17 @@ func (controller *UserController) GetCurrentUser(c *gin.Context) {
 // UpdateUserProfile godoc
 // @Summary		Update user profile.
 // @Description	Update user profile.
-// @Tags			Users
-// @Param			Authorization	header	string							true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
-// @Param			Body			body	request.ProfileUpdateRequest	true	"the body to reset password"
-// @Security		BearerToken
-// @Produce		json
-// @Success		200	{object}	web.WebSuccess[response.ProfileResponse]
-// @Failure		404	{object}	web.WebNotFoundError
-// @Failure		400	{object}	web.WebBadRequestError
-// @Failure		401	{object}	web.WebUnauthorizedError
-// @Failure		500	{object}	web.WebInternalServerError
-// @Router			/api/users/profile [patch]
+// @Tags Users
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
+// @Param Body body	request.ProfileUpdateRequest true	"the body to reset password"
+// @Produce	json
+// @Success	200	{object}	web.WebSuccess[response.ProfileResponse]
+// @Failure	404	{object}	web.WebNotFoundError
+// @Failure	400	{object}	web.WebBadRequestError
+// @Failure	401	{object}	web.WebUnauthorizedError
+// @Failure	500	{object}	web.WebInternalServerError
+// @Router /api/users/profile [patch]
 func (controller *UserController) UpdateUserProfile(c *gin.Context) {
 	var profileUpdateReq request.ProfileUpdateRequest
 
@@ -216,7 +216,7 @@ func (controller *UserController) FindUserTransaction(c *gin.Context) {
 // @Failure		404	{object}	web.WebNotFoundError
 // @Failure		500	{object}	web.WebInternalServerError
 // @Router			/api/users/{id}/carts [get]
-func (controller *UserController) FindCartByUserID(c *gin.Context){
+func (controller *UserController) FindCartByUserID(c *gin.Context) {
 	userID, err := strconv.Atoi(c.Param("id"))
 	utils.PanicIfError(err)
 
