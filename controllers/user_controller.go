@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/gowesmart/api-gowesmart/model/web"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
@@ -225,4 +225,30 @@ func (controller *UserController) FindCart(c *gin.Context) {
 	utils.PanicIfError(err)
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
+
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description	Get all users
+// @Tags Users
+// @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
+// @Param limit query int false "Limit" default(10)
+// @Param page query int false "Page" default(1)
+// @Success 200	{object} web.WebSuccess[[]response.UserResponse]
+// @Failure 500	{object} web.WebInternalServerError
+// @Router /api/users [get]
+func (controller *UserController) GetAllUsers(c *gin.Context) {
+	utils.UserRoleMustAdmin(c)
+
+	var pagination web.PaginationRequest
+
+	err := c.ShouldBindQuery(&pagination)
+	utils.PanicIfError(err)
+
+	res, metadata, err := controller.userService.GetAllUsers(c, &pagination)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }

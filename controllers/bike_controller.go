@@ -115,14 +115,27 @@ func (controller *BikeController) DeleteBike(c *gin.Context) {
 // @Description	Get all bikes
 // @Tags Bikes
 // @Produce json
+// @Param limit query int false "Limit" default(10)
+// @Param page query int false "Page" default(1)
+// @Param name query string false "Name"
+// @Param category_id query int false "Brand ID"
+// @Param min_price query int false "Minimum Price"
+// @Param max_price query int false "Maximum Price"
+// @Param min_year query int false "Minimum Year"
+// @Param max_year query int false "Maximum Year"
 // @Success 200 {object} web.WebSuccess[[]response.BikeResponse]
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/bikes [get]
 func (controller *BikeController) GetAllBikes(c *gin.Context) {
-	res, err := controller.bikeService.GetAllBikes(c)
+	var bikeQueryRequest request.BikeQueryRequest
+
+	err := c.ShouldBindQuery(&bikeQueryRequest)
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+	res, metadata, err := controller.bikeService.GetAllBikes(c, &bikeQueryRequest)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }
 
 // GetBikeByID godoc

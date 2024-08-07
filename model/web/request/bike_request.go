@@ -1,5 +1,7 @@
 package request
 
+import "github.com/gowesmart/api-gowesmart/model/web"
+
 type CreateBikeRequest struct {
 	CategoryID  uint   `json:"category_id" binding:"required"`
 	Name        string `json:"name" binding:"required"`
@@ -26,4 +28,14 @@ type UpdateBikeRequest struct {
 
 type GetBikeByIDRequest struct {
 	ID uint `json:"id" binding:"required"`
+}
+
+type BikeQueryRequest struct {
+	CategoryID uint   `form:"category_id" binding:"omitempty"`
+	Name       string `form:"name" binding:"omitempty"`
+	MinPrice   int    `form:"min_price" binding:"omitempty,gt=0"`
+	MaxPrice   int    `form:"max_price" binding:"omitempty,gt=0"`
+	MinYear    int    `form:"min_year" binding:"omitempty,gt=0"`
+	MaxYear    int    `form:"max_year" binding:"omitempty,gt=0"`
+	web.PaginationRequest
 }

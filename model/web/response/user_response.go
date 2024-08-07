@@ -23,3 +23,9 @@ type LoginResponse struct {
 	Role     string `json:"role" example:"USER" extensions:"x-order=2"`
 	Token    string `json:"token" example:"token" extensions:"x-order=3"`
 }
+
+type UserResponse struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
