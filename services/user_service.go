@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
 	"github.com/gowesmart/api-gowesmart/model/entity"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
@@ -177,6 +178,52 @@ func (service *UserService) GetCurrentUser(c *gin.Context, userID uint) (*respon
 	}
 
 	return service.toGetCurrentUserResponse(&user), nil
+}
+
+func (service *UserService) GetAllUsers(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.UserResponse, *web.Metadata, error) {
+	db, logger := utils.GetDBAndLogger(c)
+
+	var users []entity.User
+	var userResponses []response.UserResponse
+
+	query := db.Model(&entity.User{}).
+		Preload("Role").
+		Select("username, role_id, id")
+
+	var totalData int64
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count users", zap.Error(err))
+		return nil, nil, err
+	}
+	paginationReq.TotalData = totalData
+
+	offset := paginationReq.GetOffset()
+	limit := paginationReq.GetLimit()
+	if err := query.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+		logger.Error("failed to fetch users", zap.Error(err))
+		return nil, nil, err
+	}
+
+	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
+
+	for _, user := range users {
+		userResponses = append(userResponses, response.UserResponse{
+			ID:       user.ID,
+			Username: user.Username,
+			Role:     user.Role.Name,
+		})
+	}
+
+	metadata := &web.Metadata{
+		Page:       &paginationReq.Page,
+		Limit:      &paginationReq.Limit,
+		TotalPages: &paginationReq.TotalPages,
+		TotalData:  &paginationReq.TotalData,
+	}
+
+	logger.Info("success fetching all users", zap.Int("total_data", int(totalData)), zap.Int("total_pages", paginationReq.TotalPages))
+
+	return userResponses, metadata, nil
 }
 
 func (*UserService) toUserEntity(req any) *entity.User {

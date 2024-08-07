@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/entity"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
@@ -104,21 +105,40 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 	return nil
 }
 
-func (service *ReviewService) GetAllReviews(c *gin.Context) ([]response.ReviewResponse, error) {
+func (service *ReviewService) GetAllReviews(c *gin.Context, pagination *web.PaginationRequest) ([]response.ReviewResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var reviews []response.ReviewResponse
 
-	if err := db.Model(&entity.Review{}).
-		Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
-		Find(&reviews).Error; err != nil {
+	query := db.Model(&entity.Review{}).
+		Select("id, comment, rating, created_at, updated_at, bike_id, user_id")
+
+	var totalData int64
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count reviews", zap.Error(err))
+		return nil, nil, err
+	}
+	pagination.TotalData = totalData
+
+	offset := pagination.GetOffset()
+	limit := pagination.GetLimit()
+	if err := query.Offset(offset).Limit(limit).Find(&reviews).Error; err != nil {
 		logger.Error("failed to fetch reviews", zap.Error(err))
-		return nil, err
+		return nil, nil, err
 	}
 
-	logger.Info("success fetching all reviews")
+	pagination.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
 
-	return reviews, nil
+	metadata := &web.Metadata{
+		Page:       &pagination.Page,
+		Limit:      &pagination.Limit,
+		TotalPages: &pagination.TotalPages,
+		TotalData:  &pagination.TotalData,
+	}
+
+	logger.Info("success fetching all reviews", zap.Int("total_data", int(totalData)), zap.Int("total_pages", pagination.TotalPages))
+
+	return reviews, metadata, nil
 }
 
 func (service *ReviewService) GetReviewByID(c *gin.Context, id uint) (*response.ReviewResponse, error) {

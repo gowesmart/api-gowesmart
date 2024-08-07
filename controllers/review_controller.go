@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	_ "github.com/gowesmart/api-gowesmart/model/web"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
@@ -118,16 +118,23 @@ func (controller *ReviewController) DeleteReview(c *gin.Context) {
 // @Produce json
 // @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
 // @Security BearerToken
+// @Param limit query int false "Limit" default(10)
+// @Param page query int false "Page" default(1)
 // @Success 200	{object} web.WebSuccess[[]response.ReviewResponse]
 // @Failure 500	{object} web.WebInternalServerError
 // @Router /api/reviews [get]
 func (controller *ReviewController) GetAllReviews(c *gin.Context) {
 	utils.UserRoleMustAdmin(c)
 
-	res, err := controller.reviewService.GetAllReviews(c)
+	var pagination web.PaginationRequest
+
+	err := c.ShouldBindQuery(&pagination)
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+	res, metadata, err := controller.reviewService.GetAllReviews(c, &pagination)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }
 
 // GetReviewByID godoc

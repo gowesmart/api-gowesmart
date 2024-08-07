@@ -446,6 +446,15 @@ definitions:
       user_id:
         type: integer
     type: object
+  response.UserResponse:
+    properties:
+      id:
+        type: integer
+      role:
+        type: string
+      username:
+        type: string
+    type: object
   response.UserTransactionResponse:
     properties:
       id:
@@ -576,6 +585,26 @@ definitions:
       payload:
         items:
           $ref: '#/definitions/response.TransactionResponse'
+        type: array
+        x-order: "2"
+    type: object
+  web.WebSuccess-array_response_UserResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        items:
+          $ref: '#/definitions/response.UserResponse'
         type: array
         x-order: "2"
     type: object
@@ -967,6 +996,41 @@ paths:
   /api/bikes:
     get:
       description: Get all bikes
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Brand ID
+        in: query
+        name: category_id
+        type: integer
+      - description: Minimum Price
+        in: query
+        name: min_price
+        type: integer
+      - description: Maximum Price
+        in: query
+        name: max_price
+        type: integer
+      - description: Minimum Year
+        in: query
+        name: min_year
+        type: integer
+      - description: Maximum Year
+        in: query
+        name: max_year
+        type: integer
       produces:
       - application/json
       responses:
@@ -1259,6 +1323,17 @@ paths:
   /api/categories:
     get:
       description: Get all categories
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
@@ -1423,6 +1498,16 @@ paths:
         name: Authorization
         required: true
         type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
@@ -1590,6 +1675,22 @@ paths:
   /api/transactions:
     get:
       description: Registering a user from public access.
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
       produces:
       - application/json
       responses:
@@ -1605,6 +1706,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
       summary: Get all transaction.
       tags:
       - Transactions
@@ -1783,6 +1886,41 @@ paths:
       summary: Pay for a transaction
       tags:
       - Transactions
+  /api/users:
+    get:
+      description: Get all users
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 1
+        description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-array_response_UserResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Get all users
+      tags:
+      - Users
   /api/users/current:
     get:
       description: Get current user.

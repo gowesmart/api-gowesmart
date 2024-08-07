@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/model/entity"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
@@ -100,21 +101,41 @@ func (service *CategoryService) DeleteCategory(c *gin.Context, id uint) error {
 	return nil
 }
 
-func (service *CategoryService) GetAllCategories(c *gin.Context) ([]response.CategoryResponse, error) {
+func (service *CategoryService) GetAllCategories(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.CategoryResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var categories []response.CategoryResponse
 
-	if err := db.Model(&entity.Category{}).
-		Select("id, name").
-		Find(&categories).Error; err != nil {
+	query := db.Model(&entity.Category{}).Select("id, name")
+
+	// Count total data
+	var totalData int64
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count categories", zap.Error(err))
+		return nil, nil, err
+	}
+	paginationReq.TotalData = totalData
+
+	// Apply pagination
+	offset := paginationReq.GetOffset()
+	limit := paginationReq.GetLimit()
+	if err := query.Offset(offset).Limit(limit).Find(&categories).Error; err != nil {
 		logger.Error("failed to fetch categories", zap.Error(err))
-		return nil, err
+		return nil, nil, err
 	}
 
-	logger.Info("success fetching all categories")
+	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
 
-	return categories, nil
+	metadata := &web.Metadata{
+		Page:       &paginationReq.Page,
+		Limit:      &paginationReq.Limit,
+		TotalPages: &paginationReq.TotalPages,
+		TotalData:  &paginationReq.TotalData,
+	}
+
+	logger.Info("success fetching all categories", zap.Int("total_data", int(totalData)), zap.Int("total_pages", paginationReq.TotalPages))
+
+	return categories, metadata, nil
 }
 
 func (service *CategoryService) GetCategoryByID(c *gin.Context, id uint) (*response.CategoryResponse, error) {

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	_ "github.com/gowesmart/api-gowesmart/model/web"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
@@ -114,14 +114,21 @@ func (controller *CategoryController) DeleteCategory(c *gin.Context) {
 // @Description	Get all categories
 // @Tags Categories
 // @Produce json
+// @Param limit query int false "Limit" default(10)
+// @Param page query int false "Page" default(1)
 // @Success 200	{object} web.WebSuccess[[]response.CategoryResponse]
 // @Failure 500	{object} web.WebInternalServerError
 // @Router /api/categories [get]
 func (controller *CategoryController) GetAllCategories(c *gin.Context) {
-	res, err := controller.categoryService.GetAllCategories(c)
+	var pagination web.PaginationRequest
+
+	err := c.ShouldBindQuery(&pagination)
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+	res, metadata, err := controller.categoryService.GetAllCategories(c, &pagination)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }
 
 // GetCategoryByID godoc

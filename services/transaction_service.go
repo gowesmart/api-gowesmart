@@ -7,9 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
 	"github.com/gowesmart/api-gowesmart/model/entity"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	"github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/utils"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -19,21 +21,43 @@ func NewTransactionService() *TransactionService {
 	return &TransactionService{}
 }
 
-func (t TransactionService) GetAll(c *gin.Context) ([]response.TransactionResponse, error) {
-	db, _ := utils.GetDBAndLogger(c)
+func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.TransactionResponse, *web.Metadata, error) {
+	db, logger := utils.GetDBAndLogger(c)
 
 	var transactions []entity.Transaction
-	if err := db.Find(&transactions).Error; err != nil {
-		return nil, err
+
+	var totalData int64
+	query := db.Model(&entity.Transaction{})
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count transactions", zap.Error(err))
+		return nil, nil, err
 	}
+	paginationReq.TotalData = totalData
+
+	offset := paginationReq.GetOffset()
+	limit := paginationReq.GetLimit()
+	if err := query.Offset(offset).Limit(limit).Preload("Order").Find(&transactions).Error; err != nil {
+		logger.Error("failed to fetch transactions", zap.Error(err))
+		return nil, nil, err
+	}
+
+	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
 
 	var results []response.TransactionResponse
 	for _, transaction := range transactions {
-		result := toResponse(transaction)
-		results = append(results, result)
+		results = append(results, toResponse(transaction))
 	}
 
-	return results, nil
+	metadata := &web.Metadata{
+		Page:       &paginationReq.Page,
+		Limit:      &paginationReq.Limit,
+		TotalPages: &paginationReq.TotalPages,
+		TotalData:  &paginationReq.TotalData,
+	}
+
+	logger.Info("success fetching all transactions", zap.Int("total_data", int(totalData)), zap.Int("total_pages", paginationReq.TotalPages))
+
+	return results, metadata, nil
 }
 
 func (t TransactionService) GetById(c *gin.Context, transactionId int) (response.TransactionResponse, error) {
