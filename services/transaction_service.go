@@ -73,10 +73,11 @@ func (t TransactionService) GetById(c *gin.Context, transactionId int) (response
 	return result, nil
 }
 
-func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userID int) error {
+func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userID int) (response.CreateTransactionResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 	var wg sync.WaitGroup
 	channels := make(chan error, len(payloads))
+	var response response.CreateTransactionResponse
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		transaction := toTransactionEntity(userID, payloads)
@@ -99,14 +100,15 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 			}
 		}
 
+		response.TransactionID = transaction.ID
 		return nil
 	})
 
 	if err != nil {
-		return err
+		return response, err
 	}
 
-	return nil
+	return response, nil
 }
 
 func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionID, userID int) error {
