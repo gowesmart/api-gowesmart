@@ -79,7 +79,7 @@ func (t TransactionController) GetById(c *gin.Context) {
 // @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
 // @Security BearerToken
 // @Param payload body []request.TransactionCreate true "Transaction payload"
-// @Success 200 {object} web.WebSuccess[string]
+// @Success 200 {object} web.WebSuccess[response.CreateTransactionResponse]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions [post]
@@ -91,10 +91,10 @@ func (t TransactionController) Create(c *gin.Context) {
 	err = c.ShouldBindJSON(&payload)
 	utils.PanicIfError(err)
 
-	err = t.service.Create(c, payload, int(claims.UserID))
+	data, err := t.service.Create(c, payload, int(claims.UserID))
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, "data successfully created", nil)
+	utils.ToResponseJSON(c, http.StatusOK, data, nil)
 }
 
 // Update godoc

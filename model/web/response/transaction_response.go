@@ -17,3 +17,7 @@ type UserTransactionResponse struct {
 	Username    string                `json:"username"`
 	Transaction []TransactionResponse `json:"transaction"`
 }
+
+type CreateTransactionResponse struct {
+	TransactionID int `json:"transaction_id"`
+}

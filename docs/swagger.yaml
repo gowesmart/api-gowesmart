@@ -300,6 +300,11 @@ definitions:
       name:
         type: string
     type: object
+  response.CreateTransactionResponse:
+    properties:
+      transaction_id:
+        type: integer
+    type: object
   response.ForgotPasswordResponse:
     properties:
       forgot_password_token:
@@ -663,6 +668,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.CategoryResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_CreateTransactionResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.CreateTransactionResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_ForgotPasswordResponse:
@@ -1735,7 +1759,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/web.WebSuccess-string'
+            $ref: '#/definitions/web.WebSuccess-response_CreateTransactionResponse'
         "400":
           description: Bad Request
           schema:

@@ -1346,7 +1346,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-string"
+                            "$ref": "#/definitions/web.WebSuccess-response_CreateTransactionResponse"
                         }
                     },
                     "400": {
@@ -2384,6 +2384,14 @@
                 }
             }
         },
+        "response.CreateTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "transaction_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.ForgotPasswordResponse": {
             "type": "object",
             "properties": {
@@ -2909,6 +2917,37 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.CategoryResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_CreateTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.CreateTransactionResponse"
                         }
                     ],
                     "x-order": "2"
