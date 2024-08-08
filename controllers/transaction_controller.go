@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
-	_ "github.com/gowesmart/api-gowesmart/model/web"
+	"github.com/gowesmart/api-gowesmart/model/web"
 	"github.com/gowesmart/api-gowesmart/model/web/request"
 	_ "github.com/gowesmart/api-gowesmart/model/web/response"
 	"github.com/gowesmart/api-gowesmart/services"
@@ -26,15 +26,26 @@ func NewTransactionController(service services.TransactionService) TransactionCo
 // @Description Registering a user from public access.
 // @Tags Transactions
 // @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
+// @Param limit query int false "Limit" default(10)
+// @Param page query int false "Page" default(1)
 // @Success 200 {object} web.WebSuccess[[]response.TransactionResponse]
 // @Failure 400 {object} web.WebBadRequestError
 // @Failure 500 {object} web.WebInternalServerError
 // @Router /api/transactions [get]
 func (t TransactionController) GetAll(c *gin.Context) {
-	res, err := t.service.GetAll(c)
+	utils.UserRoleMustAdmin(c)
+
+	var pagination web.PaginationRequest
+
+	err := c.ShouldBindQuery(&pagination)
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+	res, metadata, err := t.service.GetAll(c, &pagination)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }
 
 // GetById godoc

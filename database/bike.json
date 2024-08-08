@@ -1,0 +1,167 @@
+[
+    {
+      "brand": "Trek",
+      "category_id": 1,
+      "description": "Sepeda gunung Trek dengan sistem suspensi penuh.",
+      "image_url": "http://example.com/images/trek_mountain.jpg",
+      "is_available": true,
+      "name": "Trek Marlin 7",
+      "price": 18000000,
+      "stock": 15,
+      "year": 2023
+    },
+    {
+      "brand": "Specialized",
+      "category_id": 2,
+      "description": "Sepeda balap Specialized dengan frame ringan.",
+      "image_url": "http://example.com/images/specialized_road.jpg",
+      "is_available": true,
+      "name": "Specialized Allez",
+      "price": 22500000,
+      "stock": 10,
+      "year": 2022
+    },
+    {
+      "brand": "Giant",
+      "category_id": 1,
+      "description": "Sepeda gunung Giant dengan teknologi ALUXX.",
+      "image_url": "http://example.com/images/giant_mountain.jpg",
+      "is_available": true,
+      "name": "Giant Talon",
+      "price": 15000000,
+      "stock": 20,
+      "year": 2023
+    },
+    {
+      "brand": "Cannondale",
+      "category_id": 2,
+      "description": "Sepeda balap Cannondale dengan teknologi SAVE.",
+      "image_url": "http://example.com/images/cannondale_road.jpg",
+      "is_available": true,
+      "name": "Cannondale Synapse",
+      "price": 27000000,
+      "stock": 8,
+      "year": 2022
+    },
+    {
+      "brand": "Bianchi",
+      "category_id": 2,
+      "description": "Sepeda balap Bianchi dengan desain ikonik.",
+      "image_url": "http://example.com/images/bianchi_road.jpg",
+      "is_available": true,
+      "name": "Bianchi Infinito",
+      "price": 30000000,
+      "stock": 5,
+      "year": 2023
+    },
+    {
+      "brand": "Scott",
+      "category_id": 1,
+      "description": "Sepeda gunung Scott dengan teknologi TwinLoc.",
+      "image_url": "http://example.com/images/scott_mountain.jpg",
+      "is_available": true,
+      "name": "Scott Spark",
+      "price": 33000000,
+      "stock": 7,
+      "year": 2023
+    },
+    {
+      "brand": "Merida",
+      "category_id": 1,
+      "description": "Sepeda gunung Merida dengan sistem suspensi depan.",
+      "image_url": "http://example.com/images/merida_mountain.jpg",
+      "is_available": true,
+      "name": "Merida Big Nine",
+      "price": 16500000,
+      "stock": 12,
+      "year": 2022
+    },
+    {
+      "brand": "Orbea",
+      "category_id": 2,
+      "description": "Sepeda balap Orbea dengan frame carbon.",
+      "image_url": "http://example.com/images/orbea_road.jpg",
+      "is_available": true,
+      "name": "Orbea Orca",
+      "price": 37500000,
+      "stock": 6,
+      "year": 2023
+    },
+    {
+      "brand": "Cube",
+      "category_id": 1,
+      "description": "Sepeda gunung Cube dengan teknologi Agile Ride Geometry.",
+      "image_url": "http://example.com/images/cube_mountain.jpg",
+      "is_available": true,
+      "name": "Cube Attention",
+      "price": 14250000,
+      "stock": 18,
+      "year": 2022
+    },
+    {
+      "brand": "Pinarello",
+      "category_id": 2,
+      "description": "Sepeda balap Pinarello dengan desain aerodinamis.",
+      "image_url": "http://example.com/images/pinarello_road.jpg",
+      "is_available": true,
+      "name": "Pinarello Dogma",
+      "price": 45000000,
+      "stock": 4,
+      "year": 2023
+    },
+    {
+      "brand": "Colnago",
+      "category_id": 2,
+      "description": "Sepeda balap Colnago dengan frame titanium.",
+      "image_url": "http://example.com/images/colnago_road.jpg",
+      "is_available": true,
+      "name": "Colnago C64",
+      "price": 52500000,
+      "stock": 3,
+      "year": 2022
+    },
+    {
+      "brand": "Salsa",
+      "category_id": 1,
+      "description": "Sepeda gunung Salsa dengan teknologi Dropbar.",
+      "image_url": "http://example.com/images/salsa_mountain.jpg",
+      "is_available": true,
+      "name": "Salsa Timberjack",
+      "price": 19500000,
+      "stock": 14,
+      "year": 2023
+    },
+    {
+      "brand": "Raleigh",
+      "category_id": 1,
+      "description": "Sepeda gunung Raleigh dengan desain ergonomis.",
+      "image_url": "http://example.com/images/raleigh_mountain.jpg",
+      "is_available": true,
+      "name": "Raleigh Talus",
+      "price": 14250000,
+      "stock": 22,
+      "year": 2022
+    },
+    {
+      "brand": "BMC",
+      "category_id": 2,
+      "description": "Sepeda balap BMC dengan sistem suspensi penuh.",
+      "image_url": "http://example.com/images/bmc_road.jpg",
+      "is_available": true,
+      "name": "BMC Roadmachine",
+      "price": 36000000,
+      "stock": 9,
+      "year": 2023
+    },
+    {
+      "brand": "Kona",
+      "category_id": 1,
+      "description": "Sepeda gunung Kona dengan sistem pengereman hidrolik.",
+      "image_url": "http://example.com/images/kona_mountain.jpg",
+      "is_available": true,
+      "name": "Kona Process",
+      "price": 21000000,
+      "stock": 13,
+      "year": 2022
+    }
+  ]
