@@ -168,17 +168,37 @@ func (t TransactionService) Delete(c *gin.Context, transactionID, userID int) er
 func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
 
-	var transaction entity.Transaction
-	if err := db.Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
-		return err
-	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		var transaction entity.Transaction
+		if err := tx.Preload("Order").Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
+			return err
+		}
+	
+		if transaction.Status != "pending" {
+			return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
+		}
+	
+		transaction.Status = "paid"
+		if err := tx.Save(&transaction).Error; err != nil {
+			return err
+		}
 
-	if transaction.Status != "pending" {
-		return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
-	}
+		for _, order := range transaction.Order {
+			var bike entity.Bike
+			if err := tx.Where("id = ?", order.BikeID).First(&bike).Error; err != nil {
+				return err
+			}
 
-	transaction.Status = "paid"
-	if err := db.Save(&transaction).Error; err != nil {
+			bike.Stock -= order.Quantity
+			if err := tx.Save(&bike).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
 		return err
 	}
 
@@ -258,6 +278,8 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 		UserID:     payload.UserID,
 		Status:     payload.Status,
 		Orders:     orders,
+		CreatedAt: payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt: payload.UpdatedAt.Format("02-01-2006"),
 	}
 }
 
