@@ -105,13 +105,15 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 	return nil
 }
 
-func (service *ReviewService) GetAllReviews(c *gin.Context, pagination *web.PaginationRequest) ([]response.ReviewResponse, *web.Metadata, error) {
+func (service *ReviewService) GetAllReviews(c *gin.Context, pagination *web.PaginationRequest) ([]response.GetAllReviewResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
-	var reviews []response.ReviewResponse
+	var reviews []response.GetAllReviewResponse
 
 	query := db.Model(&entity.Review{}).
-		Select("id, comment, rating, created_at, updated_at, bike_id, user_id")
+		Select("reviews.*, bikes.name as bike_name, users.username as user_username").
+		Joins("JOIN bikes ON reviews.bike_id = bikes.id").
+		Joins("JOIN users ON reviews.user_id = users.id")
 
 	var totalData int64
 	if err := query.Count(&totalData).Error; err != nil {

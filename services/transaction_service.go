@@ -21,7 +21,7 @@ func NewTransactionService() *TransactionService {
 	return &TransactionService{}
 }
 
-func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.TransactionResponse, *web.Metadata, error) {
+func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.GetAllTransactionResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var transactions []entity.Transaction
@@ -36,16 +36,20 @@ func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.Pagination
 
 	offset := paginationReq.GetOffset()
 	limit := paginationReq.GetLimit()
-	if err := query.Offset(offset).Limit(limit).Preload("Order").Find(&transactions).Error; err != nil {
+	if err := query.Offset(offset).
+		Limit(limit).
+		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
+		Preload("Order.Bike").
+		Find(&transactions).Error; err != nil {
 		logger.Error("failed to fetch transactions", zap.Error(err))
 		return nil, nil, err
 	}
 
 	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
 
-	var results []response.TransactionResponse
+	var results []response.GetAllTransactionResponse
 	for _, transaction := range transactions {
-		results = append(results, toResponse(transaction))
+		results = append(results, toGetAllResponse(transaction))
 	}
 
 	metadata := &web.Metadata{
@@ -258,6 +262,35 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 		UserID:     payload.UserID,
 		Status:     payload.Status,
 		Orders:     orders,
+	}
+}
+
+func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResponse {
+	var orders []response.GetAllOrderResponse
+
+	for _, order := range payload.Order {
+		temp := response.GetAllOrderResponse{
+			ID: order.ID,
+			Bike: response.GetAllOrderBikeResponse{
+				ID:   order.Bike.ID,
+				Name: order.Bike.Name,
+			},
+			Quantity:   order.Quantity,
+			TotalPrice: order.TotalPrice,
+		}
+
+		orders = append(orders, temp)
+	}
+
+	return response.GetAllTransactionResponse{
+		ID:         payload.ID,
+		TotalPrice: payload.TotalPrice,
+		User: response.GetAllTransactionUserResponse{
+			ID:       payload.User.ID,
+			Username: payload.User.Username,
+		},
+		Status: payload.Status,
+		Orders: orders,
 	}
 }
 
