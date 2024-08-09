@@ -136,6 +136,7 @@ func NewRouter() *gin.Engine {
 
 	userRouter.Use(middlewares.JwtAuthMiddleware)
 
+	userRouter.GET("", userController.GetAllUsers)
 	userRouter.GET("/current", userController.GetCurrentUser)
 	userRouter.GET("/current/transactions", userController.FindUserTransaction)
 	userRouter.GET("/current/carts", userController.FindCart)
