@@ -177,11 +177,11 @@ func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error
 		if err := tx.Preload("Order").Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
 			return err
 		}
-	
+
 		if transaction.Status != "pending" {
 			return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
 		}
-	
+
 		transaction.Status = "paid"
 		if err := tx.Save(&transaction).Error; err != nil {
 			return err
@@ -209,31 +209,48 @@ func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error
 	return nil
 }
 
-func (t TransactionService) GetTransactionByUserID(c *gin.Context, userID uint) (*response.UserTransactionResponse, error) {
-	db, _ := utils.GetDBAndLogger(c)
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, paginationReq *web.PaginationRequest, userID uint) ([]response.GetAllTransactionResponse, *web.Metadata, error) {
+	db, logger := utils.GetDBAndLogger(c)
 
-	var user entity.User
+	var transactions []entity.Transaction
 
-	err := db.Preload("Transaction").Take(&user, userID).Error
+	var totalData int64
+	query := db.Model(&entity.Transaction{})
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count transactions", zap.Error(err))
+		return nil, nil, err
+	}
+	paginationReq.TotalData = totalData
 
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, exceptions.NewCustomError(http.StatusNotFound, "User not found")
-		}
-		return nil, err
+	offset := paginationReq.GetOffset()
+	limit := paginationReq.GetLimit()
+	if err := query.Offset(offset).
+		Limit(limit).
+		Where("user_id = ?", userID).
+		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
+		Preload("Order.Bike").
+		Find(&transactions).Error; err != nil {
+		logger.Error("failed to fetch transactions", zap.Error(err))
+		return nil, nil, err
 	}
 
-	var userTransactions []response.TransactionResponse
-	for _, transaction := range user.Transaction {
-		result := toResponse(transaction)
-		userTransactions = append(userTransactions, result)
+	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
+
+	var results []response.GetAllTransactionResponse
+	for _, transaction := range transactions {
+		results = append(results, toGetAllResponse(transaction))
 	}
 
-	return &response.UserTransactionResponse{
-		ID:          user.ID,
-		Username:    user.Username,
-		Transaction: userTransactions,
-	}, nil
+	metadata := &web.Metadata{
+		Page:       &paginationReq.Page,
+		Limit:      &paginationReq.Limit,
+		TotalPages: &paginationReq.TotalPages,
+		TotalData:  &paginationReq.TotalData,
+	}
+
+	logger.Info("success fetching all transactions", zap.Int("total_data", int(totalData)), zap.Int("total_pages", paginationReq.TotalPages))
+
+	return results, metadata, nil
 }
 
 // helpers
@@ -282,8 +299,8 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 		UserID:     payload.UserID,
 		Status:     payload.Status,
 		Orders:     orders,
-		CreatedAt: payload.CreatedAt.Format("02-01-2006"),
-		UpdatedAt: payload.UpdatedAt.Format("02-01-2006"),
+		CreatedAt:  payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt:  payload.UpdatedAt.Format("02-01-2006"),
 	}
 }
 

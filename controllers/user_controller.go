@@ -200,10 +200,15 @@ func (controller *UserController) FindUserTransaction(c *gin.Context) {
 	claims, err := utils.ExtractTokenClaims(c)
 	utils.PanicIfError(err)
 
-	res, err := controller.transactionService.GetTransactionByUserID(c, claims.UserID)
+	var pagination web.PaginationRequest
+
+	err = c.ShouldBindQuery(&pagination)
 	utils.PanicIfError(err)
 
-	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+	res, metadata, err := controller.transactionService.GetTransactionByUserID(c, &pagination, claims.UserID)
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, metadata)
 }
 
 // Get user carts godoc
