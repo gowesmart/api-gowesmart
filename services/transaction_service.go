@@ -21,7 +21,7 @@ func NewTransactionService() *TransactionService {
 	return &TransactionService{}
 }
 
-func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.TransactionResponse, *web.Metadata, error) {
+func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.PaginationRequest) ([]response.GetAllTransactionResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
 	var transactions []entity.Transaction
@@ -36,16 +36,20 @@ func (t TransactionService) GetAll(c *gin.Context, paginationReq *web.Pagination
 
 	offset := paginationReq.GetOffset()
 	limit := paginationReq.GetLimit()
-	if err := query.Offset(offset).Limit(limit).Preload("Order").Find(&transactions).Error; err != nil {
+	if err := query.Offset(offset).
+		Limit(limit).
+		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
+		Preload("Order.Bike").
+		Find(&transactions).Error; err != nil {
 		logger.Error("failed to fetch transactions", zap.Error(err))
 		return nil, nil, err
 	}
 
 	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
 
-	var results []response.TransactionResponse
+	var results []response.GetAllTransactionResponse
 	for _, transaction := range transactions {
-		results = append(results, toResponse(transaction))
+		results = append(results, toGetAllResponse(transaction))
 	}
 
 	metadata := &web.Metadata{
@@ -228,31 +232,48 @@ func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error
 	return nil
 }
 
-func (t TransactionService) GetTransactionByUserID(c *gin.Context, userID uint) (*response.UserTransactionResponse, error) {
-	db, _ := utils.GetDBAndLogger(c)
+func (t TransactionService) GetTransactionByUserID(c *gin.Context, paginationReq *web.PaginationRequest, userID uint) ([]response.GetAllTransactionResponse, *web.Metadata, error) {
+	db, logger := utils.GetDBAndLogger(c)
 
-	var user entity.User
+	var transactions []entity.Transaction
 
-	err := db.Preload("Transaction").Take(&user, userID).Error
+	var totalData int64
+	query := db.Model(&entity.Transaction{})
+	if err := query.Count(&totalData).Error; err != nil {
+		logger.Error("failed to count transactions", zap.Error(err))
+		return nil, nil, err
+	}
+	paginationReq.TotalData = totalData
 
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, exceptions.NewCustomError(http.StatusNotFound, "User not found")
-		}
-		return nil, err
+	offset := paginationReq.GetOffset()
+	limit := paginationReq.GetLimit()
+	if err := query.Offset(offset).
+		Limit(limit).
+		Where("user_id = ?", userID).
+		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
+		Preload("Order.Bike").
+		Find(&transactions).Error; err != nil {
+		logger.Error("failed to fetch transactions", zap.Error(err))
+		return nil, nil, err
 	}
 
-	var userTransactions []response.TransactionResponse
-	for _, transaction := range user.Transaction {
-		result := toResponse(transaction)
-		userTransactions = append(userTransactions, result)
+	paginationReq.TotalPages = int((totalData + int64(limit) - 1) / int64(limit))
+
+	var results []response.GetAllTransactionResponse
+	for _, transaction := range transactions {
+		results = append(results, toGetAllResponse(transaction))
 	}
 
-	return &response.UserTransactionResponse{
-		ID:          user.ID,
-		Username:    user.Username,
-		Transaction: userTransactions,
-	}, nil
+	metadata := &web.Metadata{
+		Page:       &paginationReq.Page,
+		Limit:      &paginationReq.Limit,
+		TotalPages: &paginationReq.TotalPages,
+		TotalData:  &paginationReq.TotalData,
+	}
+
+	logger.Info("success fetching all transactions", zap.Int("total_data", int(totalData)), zap.Int("total_pages", paginationReq.TotalPages))
+
+	return results, metadata, nil
 }
 
 // helpers
@@ -296,14 +317,43 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 	}
 
 	return response.TransactionResponse{
-		ID:          payload.ID,
-		TotalPrice:  payload.TotalPrice,
-		UserID:      payload.UserID,
-		Status:      payload.Status,
+		ID:         payload.ID,
+		TotalPrice: payload.TotalPrice,
+		UserID:     payload.UserID,
+		Status:     payload.Status,
 		PaymentLink: payload.PaymentLink,
-		Orders:      orders,
-		CreatedAt:   payload.CreatedAt.Format("02-01-2006"),
-		UpdatedAt:   payload.UpdatedAt.Format("02-01-2006"),
+		Orders:     orders,
+		CreatedAt:  payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt:  payload.UpdatedAt.Format("02-01-2006"),
+	}
+}
+
+func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResponse {
+	var orders []response.GetAllOrderResponse
+
+	for _, order := range payload.Order {
+		temp := response.GetAllOrderResponse{
+			ID: order.ID,
+			Bike: response.GetAllOrderBikeResponse{
+				ID:   order.Bike.ID,
+				Name: order.Bike.Name,
+			},
+			Quantity:   order.Quantity,
+			TotalPrice: order.TotalPrice,
+		}
+
+		orders = append(orders, temp)
+	}
+
+	return response.GetAllTransactionResponse{
+		ID:         payload.ID,
+		TotalPrice: payload.TotalPrice,
+		User: response.GetAllTransactionUserResponse{
+			ID:       payload.User.ID,
+			Username: payload.User.Username,
+		},
+		Status: payload.Status,
+		Orders: orders,
 	}
 }
 

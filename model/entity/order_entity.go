@@ -13,4 +13,5 @@ type Order struct {
 	UpdatedAt     time.Time   `gorm:"autoUpdateTime"`
 	User          User        `gorm:"foreignKey:UserID"`
 	Transaction   Transaction `gorm:"foreignKey:TransactionID"`
+	Bike          Bike
 }

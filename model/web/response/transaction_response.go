@@ -1,5 +1,7 @@
 package response
 
+import "time"
+
 type TransactionResponse struct {
 	ID          int             `json:"id"`
 	TotalPrice  int             `json:"total_price"`
@@ -19,4 +21,19 @@ type UserTransactionResponse struct {
 
 type CreateTransactionResponse struct {
 	TransactionID int `json:"transaction_id"`
+}
+
+type GetAllTransactionResponse struct {
+	ID         int                           `json:"id"`
+	TotalPrice int                           `json:"total_price"`
+	User       GetAllTransactionUserResponse `json:"user"`
+	Status     string                        `json:"status"`
+	Orders     []GetAllOrderResponse         `json:"orders"`
+	CreatedAt  time.Time                     `json:"created_at"`
+	UpdatedAt  time.Time                     `json:"upodated_at"`
+}
+
+type GetAllTransactionUserResponse struct {
+	ID       uint   `json:"id"`
+	Username string `json:"username"`
 }

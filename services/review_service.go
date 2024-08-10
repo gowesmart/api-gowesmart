@@ -105,13 +105,15 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 	return nil
 }
 
-func (service *ReviewService) GetAllReviews(c *gin.Context, pagination *web.PaginationRequest) ([]response.ReviewResponse, *web.Metadata, error) {
+func (service *ReviewService) GetAllReviews(c *gin.Context, pagination *web.PaginationRequest) ([]response.GetAllReviewResponse, *web.Metadata, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
-	var reviews []response.ReviewResponse
+	var reviews []response.GetAllReviewResponse
 
 	query := db.Model(&entity.Review{}).
-		Select("id, comment, rating, created_at, updated_at, bike_id, user_id")
+		Select("reviews.*, bikes.name as bike_name, users.username as user_username").
+		Joins("JOIN bikes ON reviews.bike_id = bikes.id").
+		Joins("JOIN users ON reviews.user_id = users.id")
 
 	var totalData int64
 	if err := query.Count(&totalData).Error; err != nil {
@@ -163,14 +165,16 @@ func (service *ReviewService) GetReviewByID(c *gin.Context, id uint) (*response.
 	return &res, nil
 }
 
-func (service *ReviewService) GetReviewByBikeID(c *gin.Context, bikeID uint) ([]response.ReviewResponse, error) {
+func (service *ReviewService) GetReviewByBikeID(c *gin.Context, bikeID uint) ([]response.GetAllReviewResponse, error) {
 	db, logger := utils.GetDBAndLogger(c)
 
-	var reviews []response.ReviewResponse
+	var reviews []response.GetAllReviewResponse
 
 	if err := db.Model(&entity.Review{}).
 		Where("bike_id = ?", bikeID).
-		Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
+		Select("reviews.*, bikes.name as bike_name, users.username as user_username").
+		Joins("JOIN bikes ON reviews.bike_id = bikes.id").
+		Joins("JOIN users ON reviews.user_id = users.id").
 		Find(&reviews).Error; err != nil {
 		logger.Error("failed to fetch reviews by bike id", zap.Error(err))
 		return nil, err
