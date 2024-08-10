@@ -105,6 +105,29 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 		}
 
 		response.TransactionID = transaction.ID
+
+		var user entity.User
+		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+			return err
+		}
+
+		paymentPayload := utils.PaymentPayload{
+			OrderId: transaction.ID,
+			Amount:  transaction.TotalPrice,
+			FName:   user.Username,
+			Email:   user.Email,
+		}
+
+		paymentLink, err := utils.CreatePayment(paymentPayload)
+		if err != nil {
+			return err
+		}
+
+		transaction.PaymentLink = paymentLink
+		if err := tx.Save(&transaction).Error; err != nil {
+			return err
+		}
+
 		return nil
 	})
 
@@ -298,6 +321,7 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 		TotalPrice: payload.TotalPrice,
 		UserID:     payload.UserID,
 		Status:     payload.Status,
+		PaymentLink: payload.PaymentLink,
 		Orders:     orders,
 		CreatedAt:  payload.CreatedAt.Format("02-01-2006"),
 		UpdatedAt:  payload.UpdatedAt.Format("02-01-2006"),
