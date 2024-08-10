@@ -101,6 +101,29 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 		}
 
 		response.TransactionID = transaction.ID
+
+		var user entity.User
+		if err := tx.Where("id = ?", userID).First(&user).Error; err != nil {
+			return err
+		}
+
+		paymentPayload := utils.PaymentPayload{
+			OrderId: transaction.ID,
+			Amount:  transaction.TotalPrice,
+			FName:   user.Username,
+			Email:   user.Email,
+		}
+
+		paymentLink, err := utils.CreatePayment(paymentPayload)
+		if err != nil {
+			return err
+		}
+
+		transaction.PaymentLink = paymentLink
+		if err := tx.Save(&transaction).Error; err != nil {
+			return err
+		}
+
 		return nil
 	})
 
@@ -173,11 +196,11 @@ func (t TransactionService) Pay(c *gin.Context, transactionID, userID int) error
 		if err := tx.Preload("Order").Where("user_id = ?", userID).Where("id = ?", transactionID).First(&transaction).Error; err != nil {
 			return err
 		}
-	
+
 		if transaction.Status != "pending" {
 			return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
 		}
-	
+
 		transaction.Status = "paid"
 		if err := tx.Save(&transaction).Error; err != nil {
 			return err
@@ -273,13 +296,14 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 	}
 
 	return response.TransactionResponse{
-		ID:         payload.ID,
-		TotalPrice: payload.TotalPrice,
-		UserID:     payload.UserID,
-		Status:     payload.Status,
-		Orders:     orders,
-		CreatedAt: payload.CreatedAt.Format("02-01-2006"),
-		UpdatedAt: payload.UpdatedAt.Format("02-01-2006"),
+		ID:          payload.ID,
+		TotalPrice:  payload.TotalPrice,
+		UserID:      payload.UserID,
+		Status:      payload.Status,
+		PaymentLink: payload.PaymentLink,
+		Orders:      orders,
+		CreatedAt:   payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt:   payload.UpdatedAt.Format("02-01-2006"),
 	}
 }
 
