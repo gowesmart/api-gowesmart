@@ -213,7 +213,7 @@ func (controller *UserController) FindUserTransaction(c *gin.Context) {
 // @Produce json
 // @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
 // @Security BearerToken
-// @Success 200	{object} web.WebSuccess[response.CartResponse]
+// @Success 200	{object} web.WebSuccess[response.GetUserCartResponse]
 // @Failure 404	{object} web.WebNotFoundError
 // @Failure 500	{object} web.WebInternalServerError
 // @Router /api/users/current/carts [get]
