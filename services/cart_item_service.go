@@ -132,8 +132,13 @@ func (s CartItemService) Delete(c *gin.Context, bikeID, userID uint) error {
 			return exceptions.NewCustomError(http.StatusBadRequest, "User not found")
 		}
 
-		if err := tx.Where("bike_id = ? AND cart_id = ?", bikeID, cart.ID).Delete(&entity.CartItem{}).Error; err != nil {
+		result := tx.Where("bike_id = ? AND cart_id = ?", bikeID, cart.ID).Delete(&entity.CartItem{})
+		if result.Error != nil {
 			return err
+		}
+
+		if result.RowsAffected == 0 {
+			return exceptions.NewCustomError(http.StatusNotFound, "Cart item not found")
 		}
 
 		logger.Info("success deleting cart item", zap.Uint("cartID", cart.ID), zap.Uint("bikeID", bikeID))
