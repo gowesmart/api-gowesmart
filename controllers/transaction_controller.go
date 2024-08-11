@@ -92,7 +92,9 @@ func (t TransactionController) Create(c *gin.Context) {
 	utils.PanicIfError(err)
 
 	data, err := t.service.Create(c, payload, int(claims.UserID))
-	utils.PanicIfError(err)
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(500, err.Error()))
+	}
 
 	utils.ToResponseJSON(c, http.StatusOK, data, nil)
 }
