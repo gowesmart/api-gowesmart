@@ -317,14 +317,14 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 	}
 
 	return response.TransactionResponse{
-		ID:         payload.ID,
-		TotalPrice: payload.TotalPrice,
-		UserID:     payload.UserID,
-		Status:     payload.Status,
+		ID:          payload.ID,
+		TotalPrice:  payload.TotalPrice,
+		UserID:      payload.UserID,
+		Status:      payload.Status,
 		PaymentLink: payload.PaymentLink,
-		Orders:     orders,
-		CreatedAt:  payload.CreatedAt.Format("02-01-2006"),
-		UpdatedAt:  payload.UpdatedAt.Format("02-01-2006"),
+		Orders:      orders,
+		CreatedAt:   payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt:   payload.UpdatedAt.Format("02-01-2006"),
 	}
 }
 

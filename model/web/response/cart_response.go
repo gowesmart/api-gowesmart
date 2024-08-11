@@ -9,3 +9,11 @@ type CartResponse struct {
 	CreatedAt time.Time          `json:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at"`
 }
+
+type GetUserCartResponse struct {
+	ID        uint                      `json:"id"`
+	UserID    uint                      `json:"user_id"`
+	CartItems []GetUserCartItemResponse `json:"cart_items"`
+	CreatedAt time.Time                 `json:"created_at"`
+	UpdatedAt time.Time                 `json:"updated_at"`
+}
