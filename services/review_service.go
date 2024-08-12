@@ -40,6 +40,7 @@ func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.Cr
 		}
 
 		bike.Rating += review.Rating
+		bike.Reviewers += 1
 		if err := tx.Save(&bike).Error; err != nil {
 			return err
 		}
@@ -124,6 +125,7 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 		}
 
 		bike.Rating -= review.Rating
+		bike.Reviewers -= 1
 		if err := tx.Save(&bike).Error; err != nil {
 			return err
 		}

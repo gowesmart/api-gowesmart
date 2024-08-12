@@ -14,6 +14,7 @@ type BikeResponse struct {
 	Stock       int       `json:"stock"`
 	IsAvailable bool      `json:"is_available"`
 	Rating      int       `json:"rating"`
+	Reviewers   int       `json:"reviewers"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
