@@ -15,6 +15,7 @@ type GetAllOrderResponse struct {
 }
 
 type GetAllOrderBikeResponse struct {
-	ID   uint   `json:"id"`
-	Name string `json:"name"`
+	ID       uint   `json:"id"`
+	Name     string `json:"name"`
+	ImageUrl string `json:"image_url"`
 }
