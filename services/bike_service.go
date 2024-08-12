@@ -139,7 +139,6 @@ func (service *BikeService) GetAllBikes(c *gin.Context, bikeQueryReq *request.Bi
 	var bikes []response.BikeResponse
 
 	query := db.Model(&entity.Bike{}).
-		Where("stock > 0").
 		Select("id, category_id, name, brand, description, year, price, image_url, stock, is_available, created_at, updated_at")
 
 	if bikeQueryReq.CategoryID != 0 {
