@@ -2,7 +2,6 @@ package services
 
 import (
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gowesmart/api-gowesmart/exceptions"
@@ -130,8 +129,6 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 
 func (t TransactionService) Update(c *gin.Context, payloads []request.TransactionUpdate, transactionID, userID int) error {
 	db, _ := utils.GetDBAndLogger(c)
-	var wg sync.WaitGroup
-	channels := make(chan error, len(payloads))
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		var transaction entity.Transaction
@@ -143,19 +140,9 @@ func (t TransactionService) Update(c *gin.Context, payloads []request.Transactio
 			return exceptions.NewCustomError(http.StatusBadRequest, "Invalid transaction")
 		}
 
-		wg.Add(len(payloads))
 		for _, payload := range payloads {
 			if err := updateorder(tx, payload, &transaction); err != nil {
 				return err
-			}
-		}
-
-		wg.Wait()
-		close(channels)
-
-		for channel := range channels {
-			if channel != nil {
-				return channel
 			}
 		}
 
@@ -334,6 +321,7 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 			},
 			Quantity:   order.Quantity,
 			TotalPrice: order.TotalPrice,
+			IsReviewed: order.IsReviewed,
 		}
 
 		orders = append(orders, temp)

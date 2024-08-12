@@ -68,6 +68,8 @@ definitions:
         type: integer
       comment:
         type: string
+      order_id:
+        type: integer
       rating:
         maximum: 5
         minimum: 1
@@ -75,6 +77,7 @@ definitions:
     required:
     - bike_id
     - comment
+    - order_id
     - rating
     type: object
   request.ForgotPasswordRequest:
@@ -253,6 +256,10 @@ definitions:
       name:
         type: string
       price:
+        type: integer
+      rating:
+        type: integer
+      reviewers:
         type: integer
       stock:
         type: integer
@@ -1764,6 +1771,40 @@ paths:
       security:
       - BearerToken: []
       summary: Update a review
+      tags:
+      - Reviews
+  /api/reviews/order/{orderId}:
+    get:
+      description: Get a review by ID
+      parameters:
+      - description: 'Authorization. How to input in swagger : ''Bearer <insert_your_token_here>'''
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Order ID
+        in: path
+        name: Id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/web.WebSuccess-response_ReviewResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/web.WebNotFoundError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/web.WebInternalServerError'
+      security:
+      - BearerToken: []
+      summary: Get a review by ID
       tags:
       - Reviews
   /api/transactions:

@@ -162,3 +162,27 @@ func (controller *ReviewController) GetReviewByID(c *gin.Context) {
 
 	utils.ToResponseJSON(c, http.StatusOK, res, nil)
 }
+
+// GetReviewByOrderID godoc
+// @Summary Get a review by ID
+// @Description	Get a review by ID
+// @Tags Reviews
+// @Produce json
+// @Param Authorization	header string true	"Authorization. How to input in swagger : 'Bearer <insert_your_token_here>'"
+// @Security BearerToken
+// @Param Id path uint true	"Order ID"
+// @Success 200	{object} web.WebSuccess[response.ReviewResponse]
+// @Failure 404	{object} web.WebNotFoundError
+// @Failure 500	{object} web.WebInternalServerError
+// @Router /api/reviews/order/{orderId} [get]
+func (controller *ReviewController) GetReviewByOrderID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 32)
+	if err != nil {
+		utils.PanicIfError(exceptions.NewCustomError(http.StatusBadRequest, "id must be an integer"))
+	}
+
+	res, err := controller.reviewService.GetReviewByOrderID(c, uint(id))
+	utils.PanicIfError(err)
+
+	utils.ToResponseJSON(c, http.StatusOK, res, nil)
+}
