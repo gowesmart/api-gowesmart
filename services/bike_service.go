@@ -139,7 +139,7 @@ func (service *BikeService) GetAllBikes(c *gin.Context, bikeQueryReq *request.Bi
 	var bikes []response.BikeResponse
 
 	query := db.Model(&entity.Bike{}).
-		Select("id, category_id, name, brand, description, year, price, image_url, stock, is_available, rating, created_at, updated_at")
+		Select("id, category_id, name, brand, description, year, price, image_url, stock, is_available, rating, reviewers, created_at, updated_at")
 
 	if bikeQueryReq.CategoryID != 0 {
 		query = query.Where("category_id = ?", bikeQueryReq.CategoryID)
@@ -194,7 +194,7 @@ func (service *BikeService) GetBikeByID(c *gin.Context, id uint) (*response.Bike
 	var res response.BikeResponse
 
 	if err := db.Model(&entity.Bike{}).
-		Select("id, category_id, name, brand, description, year, price, image_url, stock, is_available, rating, created_at, updated_at").
+		Select("id, category_id, name, brand, description, year, price, image_url, stock, is_available, rating, reviewers, created_at, updated_at").
 		Take(&res, id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Warn("bike not found", zap.Uint("bikeID", id))

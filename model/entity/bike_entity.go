@@ -14,6 +14,7 @@ type Bike struct {
 	Stock       int    `gorm:"not null"`
 	IsAvailable bool   `gorm:"not null;default:true"`
 	Rating      int    `gorm:"not null;default:0"`
+	Reviewers   int    `gorm:"not null;default:0"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Category    Category `gorm:"foreignKey:CategoryID"`
