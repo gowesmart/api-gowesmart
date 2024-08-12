@@ -89,12 +89,7 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 		}
 
 		for _, payload := range payloads {
-<<<<<<< HEAD
 			if err := createOrder(tx, userID, transaction.ID, payload); err != nil {
-=======
-			err := createOrder(tx, userID, transaction.ID, payload)
-			if err != nil {
->>>>>>> 1ccbd9cb43ac5a100584c971ceb4e262e827b085
 				return err
 			}
 		}
