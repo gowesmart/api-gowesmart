@@ -175,6 +175,7 @@ func (service *ReviewService) GetReviewByBikeID(c *gin.Context, bikeID uint) ([]
 		Select("reviews.*, bikes.name as bike_name, users.username as user_username").
 		Joins("JOIN bikes ON reviews.bike_id = bikes.id").
 		Joins("JOIN users ON reviews.user_id = users.id").
+		Order("created_at desc").
 		Find(&reviews).Error; err != nil {
 		logger.Error("failed to fetch reviews by bike id", zap.Error(err))
 		return nil, err

@@ -252,6 +252,7 @@ func (t TransactionService) GetTransactionByUserID(c *gin.Context, paginationReq
 		Where("user_id = ?", userID).
 		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
 		Preload("Order.Bike").
+		Order("created_at desc").
 		Find(&transactions).Error; err != nil {
 		logger.Error("failed to fetch transactions", zap.Error(err))
 		return nil, nil, err
