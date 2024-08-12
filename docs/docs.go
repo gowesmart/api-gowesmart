@@ -1083,6 +1083,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/reviews/order/{orderId}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerToken": []
+                    }
+                ],
+                "description": "Get a review by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Reviews"
+                ],
+                "summary": "Get a review by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Authorization. How to input in swagger : 'Bearer \u003cinsert_your_token_here\u003e'",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Order ID",
+                        "name": "Id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebSuccess-response_ReviewResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebNotFoundError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/web.WebInternalServerError"
+                        }
+                    }
+                }
+            }
+        },
         "/api/reviews/{id}": {
             "get": {
                 "security": [
@@ -2056,6 +2109,7 @@ const docTemplate = `{
             "required": [
                 "bike_id",
                 "comment",
+                "order_id",
                 "rating"
             ],
             "properties": {
@@ -2064,6 +2118,9 @@ const docTemplate = `{
                 },
                 "comment": {
                     "type": "string"
+                },
+                "order_id": {
+                    "type": "integer"
                 },
                 "rating": {
                     "type": "integer",
@@ -2322,6 +2379,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
+                    "type": "integer"
+                },
+                "rating": {
+                    "type": "integer"
+                },
+                "reviewers": {
                     "type": "integer"
                 },
                 "stock": {

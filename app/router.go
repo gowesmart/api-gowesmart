@@ -159,6 +159,7 @@ func NewRouter() *gin.Engine {
 	reviewRouter.DELETE("/:id", reviewController.DeleteReview)
 	reviewRouter.GET("", reviewController.GetAllReviews)
 	reviewRouter.GET("/:id", reviewController.GetReviewByID)
+	reviewRouter.GET("/order/:id", reviewController.GetReviewByOrderID)
 
 	// ======================== Category ROUTE ======================
 	categoryRouter := apiRouter.Group("/categories")

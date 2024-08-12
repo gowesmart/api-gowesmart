@@ -27,6 +27,7 @@ func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.Cr
 		Rating:  reviewReq.Rating,
 		BikeID:  reviewReq.BikeID,
 		UserID:  userID,
+		OrderID: reviewReq.OrderID,
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -42,6 +43,16 @@ func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.Cr
 		bike.Rating += review.Rating
 		bike.Reviewers += 1
 		if err := tx.Save(&bike).Error; err != nil {
+			return err
+		}
+
+		var order entity.Order
+		if err := tx.Where("id = ?", review.OrderID).First(&order).Error; err != nil {
+			return err
+		}
+
+		order.IsReviewed = true
+		if err := tx.Save(&order).Error; err != nil {
 			return err
 		}
 
@@ -130,9 +141,20 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 			return err
 		}
 
+		var order entity.Order
+		if err := tx.Where("id = ?", review.OrderID).First(&order).Error; err != nil {
+			return err
+		}
+
+		order.IsReviewed = false
+		if err := tx.Save(&order).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Delete(&entity.Review{}, id).Error; err != nil {
 			return err
 		}
+
 		return nil
 	})
 
@@ -191,6 +213,29 @@ func (service *ReviewService) GetReviewByID(c *gin.Context, id uint) (*response.
 	if err := db.Model(&entity.Review{}).
 		Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
 		Take(&res, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			logger.Warn("review not found", zap.Uint("reviewID", id))
+			return nil, err
+		}
+
+		logger.Error("failed to fetch review", zap.Error(err))
+		return nil, err
+	}
+
+	logger.Info("success fetching review", zap.Uint("reviewID", id))
+
+	return &res, nil
+}
+
+func (service *ReviewService) GetReviewByOrderID(c *gin.Context, id uint) (*response.ReviewResponse, error) {
+	db, logger := utils.GetDBAndLogger(c)
+
+	var res response.ReviewResponse
+
+	if err := db.Model(&entity.Review{}).
+		Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
+		Where("order_id = ?", id).
+		Take(&res).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			logger.Warn("review not found", zap.Uint("reviewID", id))
 			return nil, err

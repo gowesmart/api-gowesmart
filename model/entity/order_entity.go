@@ -9,6 +9,7 @@ type Order struct {
 	TotalPrice    int         `gorm:"type:int;not null"`
 	UserID        int         `gorm:"type:int;not null"`
 	TransactionID int         `gorm:"type:int; not null"`
+	IsReviewed    bool        `gorm:"not null; default:false"`
 	CreatedAt     time.Time   `gorm:"autoCreateTime"`
 	UpdatedAt     time.Time   `gorm:"autoUpdateTime"`
 	User          User        `gorm:"foreignKey:UserID"`

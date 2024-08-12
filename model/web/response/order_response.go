@@ -12,6 +12,7 @@ type GetAllOrderResponse struct {
 	Bike       GetAllOrderBikeResponse `json:"bike"`
 	Quantity   int                     `json:"quantity"`
 	TotalPrice int                     `json:"total_price"`
+	IsReviewed bool                    `json:"is_reviewed"`
 }
 
 type GetAllOrderBikeResponse struct {
