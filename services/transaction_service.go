@@ -82,6 +82,7 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 	var response response.CreateTransactionResponse
 
 	err := db.Transaction(func(tx *gorm.DB) error {
+
 		transaction := toTransactionEntity(userID, payloads)
 
 		if err := tx.Create(&transaction).Error; err != nil {
@@ -89,7 +90,18 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 		}
 
 		for _, payload := range payloads {
+			var cart entity.Cart
+
+			if err := tx.Where("user_id = ?", userID).First(&cart).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Model(&entity.CartItem{}).Where("bike_id = ?", payload.BikeID).Where("cart_id = ?", cart.ID).Delete(&entity.CartItem{}).Error; err != nil {
+				return err
+			}
+
 			err := createOrder(tx, userID, transaction.ID, payload)
+
 			if err != nil {
 				return err
 			}
