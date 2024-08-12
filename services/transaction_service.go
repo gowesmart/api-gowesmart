@@ -89,7 +89,12 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 		}
 
 		for _, payload := range payloads {
+<<<<<<< HEAD
 			if err := createOrder(tx, userID, transaction.ID, payload); err != nil {
+=======
+			err := createOrder(tx, userID, transaction.ID, payload)
+			if err != nil {
+>>>>>>> 1ccbd9cb43ac5a100584c971ceb4e262e827b085
 				return err
 			}
 		}
@@ -244,6 +249,7 @@ func (t TransactionService) GetTransactionByUserID(c *gin.Context, paginationReq
 		Where("user_id = ?", userID).
 		Preload("User", func(db *gorm.DB) *gorm.DB { return db.Select("id, username") }).
 		Preload("Order.Bike").
+		Order("created_at desc").
 		Find(&transactions).Error; err != nil {
 		logger.Error("failed to fetch transactions", zap.Error(err))
 		return nil, nil, err
@@ -327,8 +333,9 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 		temp := response.GetAllOrderResponse{
 			ID: order.ID,
 			Bike: response.GetAllOrderBikeResponse{
-				ID:   order.Bike.ID,
-				Name: order.Bike.Name,
+				ID:       order.Bike.ID,
+				Name:     order.Bike.Name,
+				ImageUrl: order.Bike.ImageUrl,
 			},
 			Quantity:   order.Quantity,
 			TotalPrice: order.TotalPrice,
@@ -344,8 +351,10 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 			ID:       payload.User.ID,
 			Username: payload.User.Username,
 		},
-		Status: payload.Status,
-		Orders: orders,
+		Status:    payload.Status,
+		Orders:    orders,
+		CreatedAt: payload.CreatedAt,
+		UpdatedAt: payload.UpdatedAt,
 	}
 }
 

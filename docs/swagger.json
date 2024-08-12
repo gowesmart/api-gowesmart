@@ -1709,7 +1709,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/web.WebSuccess-response_CartResponse"
+                            "$ref": "#/definitions/web.WebSuccess-response_GetUserCartResponse"
                         }
                     },
                     "404": {
@@ -2401,6 +2401,81 @@
                 }
             }
         },
+        "response.GetUserCartItemBikeResponse": {
+            "type": "object",
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "stock": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.GetUserCartItemResponse": {
+            "type": "object",
+            "properties": {
+                "bike": {
+                    "$ref": "#/definitions/response.GetUserCartItemBikeResponse"
+                },
+                "cart_id": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "quantity": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.GetUserCartResponse": {
+            "type": "object",
+            "properties": {
+                "cart_items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.GetUserCartItemResponse"
+                    }
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.GetUserCurrentResponse": {
             "type": "object",
             "properties": {
@@ -2582,6 +2657,9 @@
                     "items": {
                         "$ref": "#/definitions/response.OrderResponse"
                     }
+                },
+                "payment_link": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -2979,6 +3057,37 @@
                     "allOf": [
                         {
                             "$ref": "#/definitions/response.ForgotPasswordResponse"
+                        }
+                    ],
+                    "x-order": "2"
+                },
+                "metadata": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/web.Metadata"
+                        }
+                    ],
+                    "x-order": "3"
+                }
+            }
+        },
+        "web.WebSuccess-response_GetUserCartResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "x-order": "0",
+                    "example": 200
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1",
+                    "example": "success"
+                },
+                "payload": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.GetUserCartResponse"
                         }
                     ],
                     "x-order": "2"

@@ -311,6 +311,55 @@ definitions:
         example: token
         type: string
     type: object
+  response.GetUserCartItemBikeResponse:
+    properties:
+      brand:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  response.GetUserCartItemResponse:
+    properties:
+      bike:
+        $ref: '#/definitions/response.GetUserCartItemBikeResponse'
+      cart_id:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      price:
+        type: number
+      quantity:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  response.GetUserCartResponse:
+    properties:
+      cart_items:
+        items:
+          $ref: '#/definitions/response.GetUserCartItemResponse'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   response.GetUserCurrentResponse:
     properties:
       email:
@@ -442,6 +491,8 @@ definitions:
         items:
           $ref: '#/definitions/response.OrderResponse'
         type: array
+      payment_link:
+        type: string
       status:
         type: string
       total_price:
@@ -706,6 +757,25 @@ definitions:
       payload:
         allOf:
         - $ref: '#/definitions/response.ForgotPasswordResponse'
+        x-order: "2"
+    type: object
+  web.WebSuccess-response_GetUserCartResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+        x-order: "0"
+      message:
+        example: success
+        type: string
+        x-order: "1"
+      metadata:
+        allOf:
+        - $ref: '#/definitions/web.Metadata'
+        x-order: "3"
+      payload:
+        allOf:
+        - $ref: '#/definitions/response.GetUserCartResponse'
         x-order: "2"
     type: object
   web.WebSuccess-response_GetUserCurrentResponse:
@@ -1993,7 +2063,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/web.WebSuccess-response_CartResponse'
+            $ref: '#/definitions/web.WebSuccess-response_GetUserCartResponse'
         "404":
           description: Not Found
           schema:

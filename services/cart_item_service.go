@@ -19,7 +19,7 @@ func NewCartItemService() *CartItemService {
 	return &CartItemService{}
 }
 
-func (s CartItemService) GetByUserID(c *gin.Context, userID uint) (*response.CartResponse, error) {
+func (s CartItemService) GetByUserID(c *gin.Context, userID uint) (*response.GetUserCartResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
 
 	var cart entity.Cart
@@ -27,13 +27,21 @@ func (s CartItemService) GetByUserID(c *gin.Context, userID uint) (*response.Car
 		return nil, err
 	}
 
-	var cartItemResponse []response.CartItemResponse
+	var cartItemResponse []response.GetUserCartItemResponse
 
 	for _, val := range cart.CartItem {
 		totalPrice := float64(val.Quantity) * float64(val.Bike.Price)
-		cartItemResponse = append(cartItemResponse, response.CartItemResponse{
-			ID:        val.ID,
-			BikeID:    val.BikeID,
+		cartItemResponse = append(cartItemResponse, response.GetUserCartItemResponse{
+			ID: val.ID,
+			Bike: response.GetUserCartItemBikeResponse{
+				ID:          val.Bike.ID,
+				Brand:       val.Bike.Brand,
+				Name:        val.Bike.Name,
+				Price:       val.Bike.Price,
+				ImageUrl:    val.Bike.ImageUrl,
+				Stock:       val.Bike.Stock,
+				Description: val.Bike.Description,
+			},
 			CartID:    val.CartID,
 			Quantity:  val.Quantity,
 			Price:     totalPrice,
@@ -42,7 +50,7 @@ func (s CartItemService) GetByUserID(c *gin.Context, userID uint) (*response.Car
 		})
 	}
 
-	return &response.CartResponse{
+	return &response.GetUserCartResponse{
 		ID:        cart.ID,
 		UserID:    cart.UserID,
 		CartItems: cartItemResponse,
