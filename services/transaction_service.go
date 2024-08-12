@@ -352,8 +352,10 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 			ID:       payload.User.ID,
 			Username: payload.User.Username,
 		},
-		Status: payload.Status,
-		Orders: orders,
+		Status:    payload.Status,
+		Orders:    orders,
+		CreatedAt: payload.CreatedAt,
+		UpdatedAt: payload.UpdatedAt,
 	}
 }
 
