@@ -2669,6 +2669,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/response.OrderResponse"
                     }
                 },
+                "payment_link": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 },

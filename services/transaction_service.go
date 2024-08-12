@@ -335,8 +335,9 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 		temp := response.GetAllOrderResponse{
 			ID: order.ID,
 			Bike: response.GetAllOrderBikeResponse{
-				ID:   order.Bike.ID,
-				Name: order.Bike.Name,
+				ID:       order.Bike.ID,
+				Name:     order.Bike.Name,
+				ImageUrl: order.Bike.ImageUrl,
 			},
 			Quantity:   order.Quantity,
 			TotalPrice: order.TotalPrice,
