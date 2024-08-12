@@ -34,6 +34,16 @@ func (service *ReviewService) CreateReview(c *gin.Context, reviewReq *request.Cr
 			return err
 		}
 
+		var bike entity.Bike
+		if err := tx.Where("id = ?", review.BikeID).First(&bike).Error; err != nil {
+			return err
+		}
+
+		bike.Rating += review.Rating
+		if err := tx.Save(&bike).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Model(&entity.Review{}).
 			Select("id, comment, rating, created_at, updated_at, bike_id, user_id").
 			Take(&res, review.ID).Error; err != nil {
@@ -62,10 +72,22 @@ func (service *ReviewService) UpdateReview(c *gin.Context, reviewReq *request.Up
 			return err
 		}
 
+		var bike entity.Bike
+		if err := tx.Where("id = ?", review.BikeID).First(&bike).Error; err != nil {
+			return err
+		}
+
+		bike.Rating -= review.Rating
+
 		review.Comment = reviewReq.Comment
 		review.Rating = reviewReq.Rating
 
 		if err := tx.Save(&review).Error; err != nil {
+			return err
+		}
+
+		bike.Rating += review.Rating
+		if err := tx.Save(&bike).Error; err != nil {
 			return err
 		}
 
@@ -90,6 +112,22 @@ func (service *ReviewService) DeleteReview(c *gin.Context, id uint) error {
 	db, logger := utils.GetDBAndLogger(c)
 
 	err := db.Transaction(func(tx *gorm.DB) error {
+		var review entity.Review
+
+		if err := tx.Where("id = ?", id).First(&review).Error; err != nil {
+			return err
+		}
+
+		var bike entity.Bike
+		if err := tx.Where("id = ?", review.BikeID).First(&bike).Error; err != nil {
+			return err
+		}
+
+		bike.Rating -= review.Rating
+		if err := tx.Save(&bike).Error; err != nil {
+			return err
+		}
+
 		if err := tx.Delete(&entity.Review{}, id).Error; err != nil {
 			return err
 		}

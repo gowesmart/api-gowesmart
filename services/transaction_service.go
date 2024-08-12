@@ -79,8 +79,6 @@ func (t TransactionService) GetById(c *gin.Context, transactionId int) (response
 
 func (t TransactionService) Create(c *gin.Context, payloads []request.TransactionCreate, userID int) (response.CreateTransactionResponse, error) {
 	db, _ := utils.GetDBAndLogger(c)
-	var wg sync.WaitGroup
-	channels := make(chan error, len(payloads))
 	var response response.CreateTransactionResponse
 
 	err := db.Transaction(func(tx *gorm.DB) error {
@@ -90,17 +88,9 @@ func (t TransactionService) Create(c *gin.Context, payloads []request.Transactio
 			return err
 		}
 
-		wg.Add(len(payloads))
 		for _, payload := range payloads {
-			go createOrder(&wg, channels, tx, userID, transaction.ID, payload)
-		}
-
-		wg.Wait()
-		close(channels)
-
-		for channel := range channels {
-			if channel != nil {
-				return channel
+			if err := createOrder(tx, userID, transaction.ID, payload); err != nil {
+				return err
 			}
 		}
 
@@ -155,7 +145,9 @@ func (t TransactionService) Update(c *gin.Context, payloads []request.Transactio
 
 		wg.Add(len(payloads))
 		for _, payload := range payloads {
-			go updateorder(&wg, channels, tx, payload, &transaction)
+			if err := updateorder(tx, payload, &transaction); err != nil {
+				return err
+			}
 		}
 
 		wg.Wait()
@@ -317,14 +309,14 @@ func toResponse(payload entity.Transaction) response.TransactionResponse {
 	}
 
 	return response.TransactionResponse{
-		ID:         payload.ID,
-		TotalPrice: payload.TotalPrice,
-		UserID:     payload.UserID,
-		Status:     payload.Status,
+		ID:          payload.ID,
+		TotalPrice:  payload.TotalPrice,
+		UserID:      payload.UserID,
+		Status:      payload.Status,
 		PaymentLink: payload.PaymentLink,
-		Orders:     orders,
-		CreatedAt:  payload.CreatedAt.Format("02-01-2006"),
-		UpdatedAt:  payload.UpdatedAt.Format("02-01-2006"),
+		Orders:      orders,
+		CreatedAt:   payload.CreatedAt.Format("02-01-2006"),
+		UpdatedAt:   payload.UpdatedAt.Format("02-01-2006"),
 	}
 }
 
@@ -357,26 +349,20 @@ func toGetAllResponse(payload entity.Transaction) response.GetAllTransactionResp
 	}
 }
 
-// concurrent
-func createOrder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, userId, transactionId int, payload request.TransactionCreate) {
-	defer wg.Done()
-
+// ex-concurrent
+func createOrder(tx *gorm.DB, userId, transactionId int, payload request.TransactionCreate) error {
 	order := toOrderEntity(userId, transactionId, payload)
 	if err := tx.Create(&order).Error; err != nil {
-		channels <- err
-		return
+		return err
 	}
 
-	channels <- nil
+	return nil
 }
 
-func updateorder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, payload request.TransactionUpdate, transaction *entity.Transaction) {
-	defer wg.Done()
-
+func updateorder(tx *gorm.DB, payload request.TransactionUpdate, transaction *entity.Transaction) error {
 	var order entity.Order
 	if err := tx.Where("id = ?", payload.ID).First(&order).Error; err != nil {
-		channels <- err
-		return
+		return err
 	}
 
 	transaction.TotalPrice -= order.TotalPrice
@@ -387,9 +373,8 @@ func updateorder(wg *sync.WaitGroup, channels chan error, tx *gorm.DB, payload r
 	order.TotalPrice = payload.TotalPrice
 
 	if err := tx.Save(&order).Error; err != nil {
-		channels <- err
-		return
+		return err
 	}
 
-	channels <- nil
+	return nil
 }
